@@ -1,10 +1,16 @@
-clear all;close all;clc;
+function correl=noisyNucl(rhoNorm)
 L=14;
-x =L* rand(1, 10000);
-y =L* rand(1, 10000);
-minAllowableDistance = 5/6;
-numberOfPoints = 47;
-noise=1.2;
+driftspeed = 1;
+mu=1;
+tau=1;
+Req=5/6;R0=1;
+Fadh=0.75;Frep=30;
+x =L* rand(1, 100000000);
+y =L* rand(1, 100000000);
+minAllowableDistance = Req;
+numberOfPoints = floor(2*rhoNorm*L^2/3.14);
+noise=.6; %stochastic noise parameter
+
 % Initialize first point.
 keeperX = x(1);
 keeperY = y(1);
@@ -34,11 +40,6 @@ end
 numberOfPoints = length(keeperX);
 Nsteps=4000;
 theta = 2*pi*rand(1,numberOfPoints);
-driftspeed = 1;
-mu=1;
-tau=1;
-Req=5/6;R0=1;
-Fadh=0.75;Frep=30;
 timedelta=0.05*R0/driftspeed;
 
 y=zeros(Nsteps+1,3*numberOfPoints);
@@ -86,14 +87,13 @@ for k=1:Nsteps
 	theta=theta+timedelta*res+sqrt(timedelta*(noise^2)/12)*normrnd(0,1,[1 length(theta)]);
 	y(k+1,:)=[posX,posY,theta];%Euler stepping
 end
-correl=correl/Nsteps
-framectr=1;
-for k=1:size(y)
-	posX=y(k,1:numberOfPoints); % x position matrix
-	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
-	plot(posX,posY,'b.'); %plot instantaneous position
-    axis([0,L,0,L]);
-    axis square;
-    grid on;
- 	pause(.005);
+correl=correl/Nsteps;
+% for k=1:size(y)
+% 	posX=y(k,1:numberOfPoints); % x position matrix
+% 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
+% 	plot(posX,posY,'b.'); %plot instantaneous position
+%     axis([0,L,0,L]);
+%     axis square;
+%     grid on;
+%  	pause(.005);
 end

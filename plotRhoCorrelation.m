@@ -1,4 +1,4 @@
-rhoNorm=linspace(0,.8,10);
+rhoNorm=linspace(0,.8,20);
 N=10;
 correl=zeros(1,length(rhoNorm));
 err=zeros(1,length(rhoNorm));
@@ -10,4 +10,5 @@ for k=1:length(rhoNorm)
     correl(k)=sum(trials)/N;
     err(k)=sqrt(sum((trials-correl(k)).^2)/N);
 end
-plot(rhoNorm,correl,err);
+errorbar(rhoNorm,correl,err);
+axis([0,1,0,1]);
