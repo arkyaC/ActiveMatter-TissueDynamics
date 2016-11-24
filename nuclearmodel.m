@@ -1,9 +1,15 @@
 clear all;close all;clc;
 L=14;
+driftspeed = 1;
+mu=1;
+tau=1;
+Req=5/6;R0=1;
+Fadh=0.75;Frep=30;
+rhoNorm=0.12;
 x =L* rand(1, 10000);
 y =L* rand(1, 10000);
-minAllowableDistance = 5/6;
-numberOfPoints = 47;
+minAllowableDistance = Req;
+numberOfPoints = floor(2*rhoNorm*L^2);
 % Initialize first point.
 keeperX = x(1);
 keeperY = y(1);
@@ -33,11 +39,6 @@ end
 numberOfPoints = length(keeperX);
 Nsteps=4000;
 theta = 2*pi*rand(1,numberOfPoints);
-driftspeed = 1;
-mu=1;
-tau=1;
-Req=5/6;R0=1;
-Fadh=0.75;Frep=30;
 timedelta=0.05*R0/driftspeed;
 
 y=zeros(Nsteps+1,3*numberOfPoints);
