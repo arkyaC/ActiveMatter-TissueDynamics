@@ -31,8 +31,7 @@ end
 % pause(0.2);
 
 numberOfPoints = length(keeperX);
-Nsteps=3000;
-% driftx=1/sqrt(2);drifty=1/sqrt(2);
+Nsteps=4000;
 theta = 2*pi*rand(1,numberOfPoints);
 driftspeed = 1;
 mu=1;
@@ -40,9 +39,10 @@ tau=1;
 Req=5/6;R0=1;
 Fadh=0.75;Frep=30;
 timedelta=0.05*R0/driftspeed;
-drift=[driftspeed*cos(theta),driftspeed*sin(theta)]; %vector init drift vel
+
 y=zeros(Nsteps+1,3*numberOfPoints);
 y(1,:) = [keeperX,keeperY,theta];
+correl=0;
 for k=1:Nsteps
 	posX=y(k,1:numberOfPoints); % x position matrix
 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
@@ -65,15 +65,18 @@ for k=1:Nsteps
 		interaxn=mu*interaxn;
 		rhs(i)=drift(i)+interaxn(1);
 		rhs(numberOfPoints+i)=drift(numberOfPoints+i)+interaxn(2);
-	end
+    end
+    s=[0,0];
 	for i=1:length(posX)
 		ni=[drift(i) drift(numberOfPoints+i) 0]/driftspeed;
 		vi=[rhs(i) rhs(numberOfPoints+i) 0];
 		normvi=sqrt(vi(1)^2+vi(2)^2);
 		vi=vi/normvi;
+        s=s+[vi(1) vi(2)];
 		ez=[0,0,1];
 		res(i)=asin(dot(ez,cross(ni,vi)));
-	end
+    end
+    correl=correl+sqrt(s(1)^2+s(2)^2)/numberOfPoints; %correlation factor
 	res=(1/tau)*res;
 	posX=posX+timedelta*rhs(1:numberOfPoints);
     posY=posY+timedelta*rhs(numberOfPoints+1:end);
@@ -82,6 +85,7 @@ for k=1:Nsteps
 	theta=theta+timedelta*res;
 	y(k+1,:)=[posX,posY,theta];%Euler stepping
 end
+correl=correl/Nsteps
 for k=1500:size(y)
 	posX=y(k,1:numberOfPoints); % x position matrix
 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
