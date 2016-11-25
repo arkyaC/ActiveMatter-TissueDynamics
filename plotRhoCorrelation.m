@@ -10,5 +10,5 @@ for k=1:length(rhoNorm)
     correl(k)=sum(trials)/N;
     err(k)=sqrt(sum((trials-correl(k)).^2)/N);
 end
-errorbar(rhoNorm,correl,err);
+errorbar(rhoNorm,correl,err,'b.');
 axis([0,1,0,1]);
