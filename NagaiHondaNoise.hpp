@@ -39,6 +39,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 #include "Exception.hpp"
+#include "RandomNumberGenerator.hpp"
 
 #include "AbstractForce.hpp"
 #include "VertexBasedCellPopulation.hpp"
