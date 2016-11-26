@@ -23,10 +23,10 @@ counter = 1;
 k=1;
 while counter<=numberOfPoints
 	# Get a trial point.
-	thisX = x[k];
-	thisY = y[k];
+	thisX = np.multiply(x[k],np.ones_like(keeperX));
+	thisY = np.multiply(y[k],np.ones_like(keeperY));
 	# See how far is is away from existing keeper points.
-	distances = sqrt((thisX-keeperX)**2 + (thisY - keeperY)**2);
+	distances = sqrt((thisX - keeperX)**2 + (thisY - keeperY)**2); #need to change this!!
 	minDistance = min(distances);
     if minDistance >= minAllowableDistance
         keeperX.append(thisX);
