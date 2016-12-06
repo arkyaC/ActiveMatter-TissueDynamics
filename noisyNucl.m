@@ -108,7 +108,7 @@ for k=1:Nsteps
 end
 
 %plotting the data
-for k=size(y)-1000:size(y)
+for k=1:size(y)
 	posX=y(k,1:numberOfPoints); % x position matrix
 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
 	plot(posX,posY,'b.'); %plot instantaneous position
