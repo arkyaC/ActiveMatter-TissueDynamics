@@ -6,7 +6,7 @@ function saveFrames(frames)
         end
         thisframe=frames(1,i);
         thisImage=frame2im(thisframe);
-        thisFile = sprintf('/home/jarvis/test_movie/frame_%04d.jpg',i);
+        thisFile = sprintf('/home/jarvis/Documents/VertexModel/movie(noise=0.6,rho=0.7)/frames/frame_%04d.jpg',i/skipFrames);
         imwrite(thisImage,thisFile);
     end
 end

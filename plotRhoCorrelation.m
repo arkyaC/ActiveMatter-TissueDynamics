@@ -1,4 +1,4 @@
-rhoNorm=linspace(0,.6,20);
+rhoNorm=linspace(0,.6,10);
 N=10;
 correl=zeros(1,length(rhoNorm));
 err=zeros(1,length(rhoNorm));

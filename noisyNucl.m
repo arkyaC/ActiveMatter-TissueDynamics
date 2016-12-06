@@ -1,15 +1,16 @@
 function correl=noisyNucl(rhoNorm)
+
 L=14;
 driftspeed = 1;
 mu=1;
 tau=1;
 Req=5/6;R0=1;
-Fadh=0.75;Frep=30;
+Fadh=0.75/6;Frep=5;Fwall=50/6;
 x =L* rand(1, 10000);
 y =L* rand(1, 10000);
-minAllowableDistance = 0.01;
+minAllowableDistance = R0;
 numberOfPoints = floor(2*rhoNorm*L^2/3.14);
-noise=.6; %stochastic noise parameter
+noise=0.6; %stochastic noise parameter
 
 % Initialize first point.
 keeperX = x(1);
@@ -64,7 +65,22 @@ for k=1:Nsteps
 			elseif dij>=Req && dij<=R0
 			    interaxn=interaxn-Fadh*(dij-Req)/(R0-Req) * eij;
 			end
-		end
+        end
+        %for wall force
+        Fx = 0;Fy = 0;
+        if posX(i)<R0
+            Fx = Fx + Fwall*exp(-2*posX(i)/R0);
+        end
+        if L-posX(i)<R0
+            Fx = Fx - Fwall*exp(-2*(L-posX(i))/R0);
+        end
+        if posY(i)<R0
+            Fy = Fy + Fwall*exp(-2*posY(i)/R0);
+        end
+        if L-posY(i)<R0
+            Fy = Fy - Fwall*exp(-2*(L-posY(i))/R0);
+        end
+        interaxn = interaxn + [Fx Fy];
 		interaxn=mu*interaxn;
 		rhs(i)=drift(i)+interaxn(1);
 		rhs(numberOfPoints+i)=drift(numberOfPoints+i)+interaxn(2);
@@ -90,13 +106,16 @@ for k=1:Nsteps
 	theta=theta+timedelta*res+sqrt(timedelta*(noise^2)/12)*normrnd(0,1,[1 length(theta)]);
 	y(k+1,:)=[posX,posY,theta];%Euler stepping
 end
-correl=correl/(Nsteps-cutoffIter);
-for k=1:size(y)
+
+%plotting the data
+for k=size(y)-1000:size(y)
 	posX=y(k,1:numberOfPoints); % x position matrix
 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
 	plot(posX,posY,'b.'); %plot instantaneous position
     axis([0,L,0,L]);
     axis square;
     grid on;
- 	pause(.005);
+    %frames(k) = getframe(gcf);
+ 	pause(.001);
 end
+correl=correl/(Nsteps-cutoffIter);
