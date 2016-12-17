@@ -1,16 +1,18 @@
 function correl=noisyNucl(rhoNorm)
 
-L=14;
+%L=14;
 driftspeed = 1;
-mu=1;
-tau=1;
-Req=5/6;R0=1;
-Fadh=0.75/6;Frep=5;Fwall=50/6;
-x =L* rand(1, 10000);
-y =L* rand(1, 10000);
+mu = 1;
+tau = 1;
+Req = 5/6;R0 = 1;
+Fadh = 0.75/6;Frep = 5;Fwall = 50/6;
 minAllowableDistance = R0;
-numberOfPoints = floor(2*rhoNorm*L^2/3.14);
-noise=0.6; %stochastic noise parameter
+%numberOfPoints = floor(2*rhoNorm*L^2/3.14);
+numberOfPoints = 500;
+L = sqrt(numberOfPoints*pi/(2*rhoNorm));
+x = L* rand(1, 10000);
+y = L* rand(1, 10000);
+noise = 0.6; %stochastic noise parameter
 
 % Initialize first point.
 keeperX = x(1);
@@ -39,7 +41,7 @@ end
 % pause(0.2);
 
 numberOfPoints = length(keeperX);
-Nsteps=4000;cutoffIter=Nsteps-100;
+Nsteps=6000;cutoffIter=Nsteps-100;
 theta = 2*pi*rand(1,numberOfPoints);
 timedelta=0.05*R0/driftspeed;
 
@@ -67,20 +69,20 @@ for k=1:Nsteps
 			end
         end
         %for wall force
-        Fx = 0;Fy = 0;
-        if posX(i)<R0
-            Fx = Fx + Fwall*exp(-2*posX(i)/R0);
-        end
-        if L-posX(i)<R0
-            Fx = Fx - Fwall*exp(-2*(L-posX(i))/R0);
-        end
-        if posY(i)<R0
-            Fy = Fy + Fwall*exp(-2*posY(i)/R0);
-        end
-        if L-posY(i)<R0
-            Fy = Fy - Fwall*exp(-2*(L-posY(i))/R0);
-        end
-        interaxn = interaxn + [Fx Fy];
+%         Fx = 0;Fy = 0;
+%         if posX(i)<R0
+%             Fx = Fx + Fwall*exp(-2*posX(i)/R0);
+%         end
+%         if L-posX(i)<R0
+%             Fx = Fx - Fwall*exp(-2*(L-posX(i))/R0);
+%         end
+%         if posY(i)<R0
+%             Fy = Fy + Fwall*exp(-2*posY(i)/R0);
+%         end
+%         if L-posY(i)<R0
+%             Fy = Fy - Fwall*exp(-2*(L-posY(i))/R0);
+%         end
+%         interaxn = interaxn + [Fx Fy];
 		interaxn=mu*interaxn;
 		rhs(i)=drift(i)+interaxn(1);
 		rhs(numberOfPoints+i)=drift(numberOfPoints+i)+interaxn(2);
@@ -98,6 +100,7 @@ for k=1:Nsteps
     if k>cutoffIter
         correl=correl+sqrt(s(1)^2+s(2)^2)/numberOfPoints; %correlation factor
     end
+    orderN(k)=sqrt(s(1)^2+s(2)^2)/numberOfPoints;
 	res=(1/tau)*res;
 	posX=posX+timedelta*rhs(1:numberOfPoints);
     posY=posY+timedelta*rhs(numberOfPoints+1:end);
@@ -106,16 +109,20 @@ for k=1:Nsteps
 	theta=theta+timedelta*res+sqrt(timedelta*(noise^2)/12)*normrnd(0,1,[1 length(theta)]);
 	y(k+1,:)=[posX,posY,theta];%Euler stepping
 end
-
+%plotting the order parameter value against step number
+plot(linspace(0,Nsteps,Nsteps),orderN);
+axis([0,Nsteps,0,1]);
+xlabel('Time step');ylabel('Order Parameter');
+drawnow
 %plotting the data
-for k=1:size(y)
-	posX=y(k,1:numberOfPoints); % x position matrix
-	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
-	plot(posX,posY,'b.'); %plot instantaneous position
-    axis([0,L,0,L]);
-    axis square;
-    grid on;
-    %frames(k) = getframe(gcf);
- 	pause(.001);
-end
+% for k=1:size(y)
+% 	posX=y(k,1:numberOfPoints); % x position matrix
+% 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
+% 	plot(posX,posY,'b.'); %plot instantaneous position
+%     axis([0,L,0,L]);
+%     axis square;
+%     grid on;
+%     %frames(k) = getframe(gcf);
+%  	pause(.001);
+% end
 correl=correl/(Nsteps-cutoffIter);
