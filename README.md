@@ -1,2 +1,2 @@
-## Vertex Model of tissue dynamics
+## Tissue dynamics and collective motion
 _Supervisor_: Prof. Amitabha Nandi  
