@@ -2,7 +2,7 @@ function orderParam = vicsek(rho)
 numberOfPoints = 300;
 %rho = 10.4;
 L = sqrt(numberOfPoints/rho);
-noise = 5;
+noise = .4;
 v = 0.03; %as stated in the paper (for optimum results)
 r = 1; %definition of neighbourhood for averaging
 x =L* rand(1, 10000);
@@ -29,13 +29,13 @@ while counter<=numberOfPoints
     k=k+1;
 end
 
-Nsteps=2000;cutOffIter=Nsteps-150;
+Nsteps=3000;cutOffIter=Nsteps-200;
 theta = 2*pi*rand(1,numberOfPoints);
 timedelta = .1; %arbitrary
 y = zeros(Nsteps+1,3*numberOfPoints);
 y(1,:) = [keeperX,keeperY,theta];
 correl = 0; %to be evaluated later
-ctr = 0;
+counter = 0;
 
 for k=1:Nsteps
 	posX=y(k,1:numberOfPoints); % x position matrix
@@ -64,7 +64,7 @@ for k=1:Nsteps
     orderN(k)=sqrt(s(1)^2+s(2)^2)/numberOfPoints;
     if k>cutOffIter
         correl = correl + orderN(k);
-        ctr = ctr + 1;
+        counter = counter + 1;
     end
     
     theta = newTheta;
@@ -92,4 +92,4 @@ end
 %     grid on;
 % 	pause(.005);
 % end
-orderParam = correl/ctr;
+orderParam = correl/counter;
