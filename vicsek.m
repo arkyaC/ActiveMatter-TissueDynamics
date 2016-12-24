@@ -1,12 +1,12 @@
-function orderParam = vicsek(rho)
-numberOfPoints = 300;
+function orderParam = vicsek(rho,noise)
+numberOfPoints = 1000;
 %rho = 10.4;
 L = sqrt(numberOfPoints/rho);
-noise = .4;
+%noise = .4;
 v = 0.03; %as stated in the paper (for optimum results)
 r = 1; %definition of neighbourhood for averaging
-x =L* rand(1, 10000);
-y =L* rand(1, 10000);
+x =L* rand(1, 100000);
+y =L* rand(1, 100000);
 minAllowableDistance = 0.1; %arbitrary (just for better visualisation)
 % Initialize first point.
 keeperX = x(1);
