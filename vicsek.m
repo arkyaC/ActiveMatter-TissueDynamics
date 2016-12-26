@@ -58,7 +58,9 @@ for k=1:Nsteps
             end
         end
         avg = avg/ctr;
-        newTheta(i) = avg + (noise*rand - noise/2);
+        temp = avg + (noise*rand - noise/2);
+        %keep angle between 0 and 2pi
+        newTheta(i) = 2*pi * (temp/(2*pi) - floor(temp/(2*pi)));
     end
     
     orderN(k)=sqrt(s(1)^2+s(2)^2)/numberOfPoints;
