@@ -123,4 +123,11 @@ drawnow
 %     %frames(k) = getframe(gcf);
 %  	pause(.001);
 % end
+
+%writing to a file
+% A=[rhoNorm;correl;err];
+% fileID = fopen('run 1.txt','w');
+% fprintf(fileID,'%10s %8s %8s\n','rhoNorm','order','error');
+% fprintf(fileID,'%6.5f %5.4f %6.5f\n',A);
+% fclose(fileID);
 correl=correl/(Nsteps-cutoffIter);
