@@ -1,5 +1,5 @@
 *.asv
 *.jpg
 *.*~
-info.txt
+*.txt
 simulation\ videos/**
