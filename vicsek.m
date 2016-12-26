@@ -1,5 +1,5 @@
 function orderParam = vicsek(rho,noise)
-numberOfPoints = 1000;
+numberOfPoints = 4000;
 %rho = 10.4;
 L = sqrt(numberOfPoints/rho);
 %noise = .4;
