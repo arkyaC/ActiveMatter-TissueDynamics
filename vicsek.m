@@ -29,7 +29,7 @@ while counter<=numberOfPoints
     k=k+1;
 end
 
-Nsteps=3000;cutOffIter=Nsteps-200;
+Nsteps=2000;cutOffIter=Nsteps-200;
 theta = 2*pi*rand(1,numberOfPoints);
 timedelta = .1; %arbitrary
 y = zeros(Nsteps+1,3*numberOfPoints);
@@ -66,7 +66,9 @@ for k=1:Nsteps
         correl = correl + orderN(k);
         counter = counter + 1;
     end
-    
+    %histogram(theta,100);
+    %axis([0,2*pi,0,100]);
+    %pause(0.05);
     theta = newTheta;
     %vel = [v*cos(theta) v*sin(theta)]; %updated vel
     posX = posX + vel(1:numberOfPoints)*timedelta;
@@ -77,19 +79,21 @@ for k=1:Nsteps
 end
 %plot order parameter against time
 %plot1 = figure;
-% plot(linspace(0,Nsteps,Nsteps),orderN);
-% axis([0,Nsteps,0,1]);
-% xlabel('Time step');ylabel('Order Parameter');
+plot(linspace(0,Nsteps,Nsteps),orderN);
+axis([0,Nsteps,0,1]);
+xlabel('Time step');ylabel('Order Parameter');
+
+pause(10);
 
 %movie
 % plot2 = figure;
-% for k=1:size(y)
-% 	posX=y(k,1:numberOfPoints); % x position matrix
-% 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
-% 	plot(posX,posY,'b.'); %plot instantaneous position
-%     axis([0,L,0,L]);
-%     axis square;
-%     grid on;
-% 	pause(.005);
-% end
+for k=1:size(y)
+	posX=y(k,1:numberOfPoints); % x position matrix
+	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
+	plot(posX,posY,'b.'); %plot instantaneous position
+    axis([0,L,0,L]);
+    axis square;
+    grid on;
+	pause(.1);
+end
 orderParam = correl/counter;
