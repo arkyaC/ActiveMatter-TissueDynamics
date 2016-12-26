@@ -1,5 +1,5 @@
 function orderParam = vicsek(rho,noise)
-numberOfPoints = 4000;
+numberOfPoints = 400;
 %rho = 10.4;
 L = sqrt(numberOfPoints/rho);
 %noise = .4;
@@ -29,22 +29,21 @@ while counter<=numberOfPoints
     k=k+1;
 end
 
-Nsteps=2000;cutOffIter=Nsteps-200;
+Nsteps=10000;cutOffIter=Nsteps-200;
 theta = 2*pi*rand(1,numberOfPoints);
-timedelta = .1; %arbitrary
+timedelta = 1; %as mentioned in paper
 y = zeros(Nsteps+1,3*numberOfPoints);
 y(1,:) = [keeperX,keeperY,theta];
 correl = 0; %to be evaluated later
 counter = 0;
-
+orderN = zeros(1,Nsteps);
 for k=1:Nsteps
 	posX=y(k,1:numberOfPoints); % x position matrix
 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
 	theta=y(k,2*numberOfPoints+1:end);
     newTheta=theta;
 	vel=[v*cos(theta) v*sin(theta)];
-    rhs = zeros(1,3*numberOfPoints);
-    s = [0,0];
+    s = [0,0]; %avg vel init
     for i=1:numberOfPoints %evaluating updated angle parameter
         avg = 0;
         ctr = 0;
@@ -68,9 +67,9 @@ for k=1:Nsteps
         correl = correl + orderN(k);
         counter = counter + 1;
     end
-    %histogram(theta,100);
-    %axis([0,2*pi,0,100]);
-    %pause(0.05);
+%     histogram(theta,100);
+%     axis([0,2*pi,0,100]);
+%     pause(0.05);
     theta = newTheta;
     %vel = [v*cos(theta) v*sin(theta)]; %updated vel
     posX = posX + vel(1:numberOfPoints)*timedelta;
@@ -85,17 +84,17 @@ plot(linspace(0,Nsteps,Nsteps),orderN);
 axis([0,Nsteps,0,1]);
 xlabel('Time step');ylabel('Order Parameter');
 
-pause(10);
+% pause(10);
 
 %movie
 % plot2 = figure;
-for k=1:size(y)
-	posX=y(k,1:numberOfPoints); % x position matrix
-	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
-	plot(posX,posY,'b.'); %plot instantaneous position
-    axis([0,L,0,L]);
-    axis square;
-    grid on;
-	pause(.1);
-end
+% for k=1:size(y)
+% 	posX=y(k,1:numberOfPoints); % x position matrix
+% 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
+% 	plot(posX,posY,'b.'); %plot instantaneous position
+%     axis([0,L,0,L]);
+%     axis square;
+%     grid on;
+% 	pause(.1);
+% end
 orderParam = correl/counter;
