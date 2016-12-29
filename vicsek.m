@@ -7,7 +7,7 @@ v = 0.03; %as stated in the paper (for optimum results)
 r = 1; %definition of neighbourhood for averaging
 x =L* rand(1, 100000);
 y =L* rand(1, 100000);
-minAllowableDistance = 0.1; %arbitrary (just for better visualisation)
+minAllowableDistance = 0; %arbitrary (just for better visualisation) %CHANGE to 0 for testing
 % Initialize first point.
 keeperX = x(1);
 keeperY = y(1);
@@ -29,8 +29,8 @@ while counter<=numberOfPoints
     k=k+1;
 end
 
-Nsteps=10000;cutOffIter=Nsteps-200;
-theta = 2*pi*rand(1,numberOfPoints);
+Nsteps=500;cutOffIter=Nsteps-200;
+theta = 2*pi*rand(1,numberOfPoints) - pi; %-pi to pi
 timedelta = 1; %as mentioned in paper
 y = zeros(Nsteps+1,3*numberOfPoints);
 y(1,:) = [keeperX,keeperY,theta];
@@ -58,8 +58,10 @@ for k=1:Nsteps
         end
         avg = avg/ctr;
         temp = avg + (noise*rand - noise/2);
-        %keep angle between 0 and 2pi
-        newTheta(i) = 2*pi * (temp/(2*pi) - floor(temp/(2*pi)));
+        %keep angle between -pi and pi
+        newTheta(i) = temp - 2*pi*floor( (temp+pi)/(2*pi) );
+        %newTheta(i) = wrapToPi(temp);
+        %newTheta(i) = 2*pi * (temp/(2*pi) - floor(temp/(2*pi)));
     end
     
     orderN(k)=sqrt(s(1)^2+s(2)^2)/numberOfPoints;
@@ -68,7 +70,7 @@ for k=1:Nsteps
         counter = counter + 1;
     end
 %     histogram(theta,100);
-%     axis([0,2*pi,0,100]);
+%     axis([-pi,pi,0,100]);
 %     pause(0.05);
     theta = newTheta;
     %vel = [v*cos(theta) v*sin(theta)]; %updated vel
@@ -78,8 +80,11 @@ for k=1:Nsteps
 	posY = L*(posY/L-floor(posY/L));
     y(k+1,:)=[posX,posY,theta];%time stepping
 end
+% histogram(theta,100);
+% axis([-pi,pi,0,100]);
+
 %plot order parameter against time
-%plot1 = figure;
+%figure;
 plot(linspace(0,Nsteps,Nsteps),orderN);
 axis([0,Nsteps,0,1]);
 xlabel('Time step');ylabel('Order Parameter');
