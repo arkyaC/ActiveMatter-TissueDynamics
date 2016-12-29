@@ -1,12 +1,12 @@
-function orderParam = vicsek(rho,noise)
+function orderN = vicsek(rho,noise)
 numberOfPoints = 400;
 %rho = 10.4;
 L = sqrt(numberOfPoints/rho);
 %noise = .4;
 v = 0.03; %as stated in the paper (for optimum results)
 r = 1; %definition of neighbourhood for averaging
-x =L* rand(1, 100000);
-y =L* rand(1, 100000);
+x =L* rand(1, 1000000);
+y =L* rand(1, 1000000);
 minAllowableDistance = 0; %arbitrary (just for better visualisation) %CHANGE to 0 for testing
 % Initialize first point.
 keeperX = x(1);
@@ -29,8 +29,9 @@ while counter<=numberOfPoints
     k=k+1;
 end
 
-Nsteps=500;cutOffIter=Nsteps-200;
+Nsteps=1800;cutOffIter=Nsteps-200;
 theta = 2*pi*rand(1,numberOfPoints) - pi; %-pi to pi
+%theta = pi/2 * ones(1,numberOfPoints);
 timedelta = 1; %as mentioned in paper
 y = zeros(Nsteps+1,3*numberOfPoints);
 y(1,:) = [keeperX,keeperY,theta];
@@ -41,7 +42,7 @@ for k=1:Nsteps
 	posX=y(k,1:numberOfPoints); % x position matrix
 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
 	theta=y(k,2*numberOfPoints+1:end);
-    newTheta=theta;
+    newTheta=theta; %just arbit initialisation
 	vel=[v*cos(theta) v*sin(theta)];
     s = [0,0]; %avg vel init
     for i=1:numberOfPoints %evaluating updated angle parameter
@@ -102,4 +103,3 @@ xlabel('Time step');ylabel('Order Parameter');
 %     grid on;
 % 	pause(.1);
 % end
-orderParam = correl/counter;
