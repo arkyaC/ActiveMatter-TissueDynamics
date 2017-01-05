@@ -29,7 +29,7 @@ while counter<=numberOfPoints
     k=k+1;
 end
 
-Nsteps=1800;cutOffIter=Nsteps-200;
+Nsteps=500;cutOffIter=Nsteps-200;
 theta = 2*pi*rand(1,numberOfPoints) - pi; %-pi to pi
 %theta = pi/2 * ones(1,numberOfPoints);
 timedelta = 1; %as mentioned in paper
@@ -84,11 +84,16 @@ end
 % histogram(theta,100);
 % axis([-pi,pi,0,100]);
 
+% write data to dump
+fileID = fopen('dump.txt','w');
+fprintf(fileID,'%d \t %6.5f \n',(1:Nsteps),orderN);
+fclose(fileID);
+
 %plot order parameter against time
 %figure;
-plot(linspace(0,Nsteps,Nsteps),orderN);
-axis([0,Nsteps,0,1]);
-xlabel('Time step');ylabel('Order Parameter');
+% plot(linspace(0,Nsteps,Nsteps),orderN);
+% axis([0,Nsteps,0,1]);
+% xlabel('Time step');ylabel('Order Parameter');
 
 % pause(10);
 
