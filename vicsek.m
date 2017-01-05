@@ -85,8 +85,9 @@ end
 % axis([-pi,pi,0,100]);
 
 % write data to dump
+timeSteps = 1:Nsteps;
 fileID = fopen('dump.txt','w');
-fprintf(fileID,'%d \t %6.5f \n',(1:Nsteps),orderN);
+fprintf(fileID,'%d \t %6.5f \n',[timeSteps;orderN]);
 fclose(fileID);
 
 %plot order parameter against time
