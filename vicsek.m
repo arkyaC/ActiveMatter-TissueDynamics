@@ -1,5 +1,5 @@
 function orderN = vicsek(rho,noise)
-numberOfPoints = 400;
+numberOfPoints = 40;
 %rho = 10.4;
 L = sqrt(numberOfPoints/rho);
 %noise = .4;
@@ -85,10 +85,10 @@ end
 % axis([-pi,pi,0,100]);
 
 % write data to dump
-timeSteps = 1:Nsteps;
-fileID = fopen('dump.txt','w');
-fprintf(fileID,'%d \t %6.5f \n',[timeSteps;orderN]);
-fclose(fileID);
+% timeSteps = 1:Nsteps;
+% fileID = fopen('dump.txt','w');
+% fprintf(fileID,'%d \t %6.5f \n',[timeSteps;orderN]);
+% fclose(fileID);
 
 %plot order parameter against time
 %figure;
