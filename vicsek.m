@@ -14,7 +14,7 @@ keeperY = y(1);
 % Try dropping down more points.
 counter = 1;
 k=1;
-while counter<=numberOfPoints
+while counter<numberOfPoints
 	% Get a trial point.
 	thisX = x(k);
 	thisY = y(k);
@@ -29,7 +29,7 @@ while counter<=numberOfPoints
     k=k+1;
 end
 
-Nsteps=500;cutOffIter=Nsteps-200;
+Nsteps=10000;cutOffIter=Nsteps-200;
 theta = 2*pi*rand(1,numberOfPoints) - pi; %-pi to pi
 %theta = pi/2 * ones(1,numberOfPoints);
 timedelta = 1; %as mentioned in paper
@@ -91,10 +91,9 @@ end
 % fclose(fileID);
 
 %plot order parameter against time
-%figure;
-% plot(linspace(0,Nsteps,Nsteps),orderN);
-% axis([0,Nsteps,0,1]);
-% xlabel('Time step');ylabel('Order Parameter');
+plot(linspace(0,Nsteps,Nsteps),orderN);
+axis([0,Nsteps,0,1]);
+xlabel('Time step');ylabel('Order Parameter');
 
 % pause(10);
 
