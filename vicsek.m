@@ -5,30 +5,9 @@ L = sqrt(numberOfPoints/rho);
 %noise = .4;
 v = 0.03; %as stated in the paper (for optimum results)
 r = 1; %definition of neighbourhood for averaging
-x =L* rand(1, 1000000);
-y =L* rand(1, 1000000);
-minAllowableDistance = 0; %arbitrary (just for better visualisation) %CHANGE to 0 for testing
-% Initialize first point.
-keeperX = x(1);
-keeperY = y(1);
-% Try dropping down more points.
-counter = 1;
-k=1;
-while counter<numberOfPoints
-	% Get a trial point.
-	thisX = x(k);
-	thisY = y(k);
-	% See how far is is away from existing keeper points.
-	distances = sqrt((thisX-keeperX).^2 + (thisY - keeperY).^2);
-	minDistance = min(distances);
-    if minDistance >= minAllowableDistance
-        keeperX(counter) = thisX;
-        keeperY(counter) = thisY;
-        counter = counter + 1;
-    end
-    k=k+1;
-end
 
+keeperX =L* rand(1, numberOfPoints);
+keeperY =L* rand(1, numberOfPoints);
 Nsteps=10000;cutOffIter=Nsteps-200;
 theta = 2*pi*rand(1,numberOfPoints) - pi; %-pi to pi
 %theta = pi/2 * ones(1,numberOfPoints);
@@ -91,14 +70,13 @@ end
 % fclose(fileID);
 
 %plot order parameter against time
-plot(linspace(0,Nsteps,Nsteps),orderN);
-axis([0,Nsteps,0,1]);
-xlabel('Time step');ylabel('Order Parameter');
+% plot(linspace(0,Nsteps,Nsteps),orderN);
+% axis([0,Nsteps,0,1]);
+% xlabel('Time step');ylabel('Order Parameter');
 
 % pause(10);
 
 %movie
-% plot2 = figure;
 % for k=1:size(y)
 % 	posX=y(k,1:numberOfPoints); % x position matrix
 % 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
