@@ -1,5 +1,5 @@
-rho = 40/(3.1^2);
-N = 10;
+rho = 4;
+N = 5;
 noiseMax = 5;
 noise = linspace(0,noiseMax,20);
 correl=zeros(1,length(noise));
