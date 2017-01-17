@@ -60,7 +60,7 @@ end
 
 % write data to dump
 timeSteps = 1:Nsteps;
-fileID = fopen('../newdump.txt','w');
+fileID = fopen('data/dump.txt','w');
 fprintf(fileID,'%d \t %6.5f \n',[timeSteps;orderN]);
 fclose(fileID);
 
