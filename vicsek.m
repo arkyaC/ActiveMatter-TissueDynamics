@@ -6,14 +6,14 @@ L = sqrt(numberOfPoints/rho);
 v = 0.03; %as stated in the paper (for optimum results)
 r = 1; %definition of neighbourhood for averaging
 
-keeperX =L* rand(1, numberOfPoints);
-keeperY =L* rand(1, numberOfPoints);
+pointsX =L* rand(1, numberOfPoints);
+pointsY =L* rand(1, numberOfPoints);
 Nsteps=1500;
 theta = 2*pi*rand(1,numberOfPoints) - pi; %-pi to pi
 %theta = pi/2 * ones(1,numberOfPoints);
 timedelta = 1; %as mentioned in paper
 y = zeros(Nsteps+1,3*numberOfPoints);
-y(1,:) = [keeperX,keeperY,theta];
+y(1,:) = [pointsX,pointsY,theta];
 orderN = zeros(1,Nsteps);
 for k=1:Nsteps
 	posX=y(k,1:numberOfPoints); % x position matrix
@@ -29,8 +29,11 @@ for k=1:Nsteps
         ni = [vel(i) vel(numberOfPoints+i)]/v;
         s = s + ni;
         for j=1:numberOfPoints
-            distIJsq = (posX(j)-posX(i))^2 + (posY(j) - posY(i))^2;
-            if distIJsq<=(r^2)
+            distIJsq = min([(posX(i) - posX(j))^2 + (posY(i) - posY(j))^2,
+                            (posX(i) + L - posX(j))^2 + (posY(i) - posY(j))^2,
+                            (posX(i) - posX(j))^2 + (posY(i) + L - posY(j))^2,
+                            (posX(i) + L - posX(j))^2 + (posY(i) + L - posY(j))^2]);
+            if distIJsq<(r^2)
                 avg = avg + theta(j);
                 ctr = ctr + 1;
             end
@@ -39,39 +42,35 @@ for k=1:Nsteps
         temp = avg + (noise*rand - noise/2);
         %keep angle between -pi and pi
         newTheta(i) = temp-2*pi*floor((temp+pi)/(2*pi));
-%         newTheta(i) = wrapToPi(temp);
-%         newTheta(i) = 2*pi * (temp/(2*pi) - floor(temp/(2*pi)));
     end
     orderN(k)=sqrt(s(1)^2+s(2)^2)/numberOfPoints;
-    
-% visualising distribution of directions
-%     histogram(theta,100);
-%     axis([-pi,pi,0,100]);
-%     pause(0.05);
     theta = newTheta; % update angle values
     posX = posX + vel(1:numberOfPoints)*timedelta;
     posY = posY + vel(numberOfPoints+1:end)*timedelta;
     posX = posX-L*floor(posX/L); % periodic BC
 	posY = posY-L*floor(posY/L);
     y(k+1,:)=[posX,posY,theta];
+%     visualising distribution of directions
+%     histogram(theta,100);
+%     axis([-pi,pi,0,100]);
+%     pause(0.05);
 end
 % histogram(theta,100);
 % axis([-pi,pi,0,100]);
 
 % write data to dump
-% timeSteps = 1:Nsteps;
-% fileID = fopen('dump.txt','w');
-% fprintf(fileID,'%d \t %6.5f \n',[timeSteps;orderN]);
-% fclose(fileID);
+timeSteps = 1:Nsteps;
+fileID = fopen('../newdump.txt','w');
+fprintf(fileID,'%d \t %6.5f \n',[timeSteps;orderN]);
+fclose(fileID);
 
 %plot order parameter against time
 plot(linspace(0,Nsteps,Nsteps),orderN);
 axis([0,Nsteps,0,1]);
 xlabel('Time step');ylabel('Order Parameter');
 
-% pause(10);
-
 %movie
+% pause(10);
 % for k=1:size(y)
 % 	posX=y(k,1:numberOfPoints); % x position matrix
 % 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
