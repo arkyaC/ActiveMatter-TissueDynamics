@@ -1,5 +1,5 @@
 function orderN = vicsek(rho,noise)
-numberOfPoints = 4000;
+numberOfPoints = 40;
 %rho = 10.4;
 L = sqrt(numberOfPoints/rho);
 %noise = .4;
@@ -8,7 +8,7 @@ r = 1; %definition of neighbourhood for averaging
 
 keeperX =L* rand(1, numberOfPoints);
 keeperY =L* rand(1, numberOfPoints);
-Nsteps=15000;
+Nsteps=1500;
 theta = 2*pi*rand(1,numberOfPoints) - pi; %-pi to pi
 %theta = pi/2 * ones(1,numberOfPoints);
 timedelta = 1; %as mentioned in paper

@@ -1,29 +1,37 @@
+#incomplete
 import numpy as np
 import time
 start_time = time.time()
 
-cdef int numberOfPoints = 40
-cdef double rho = 4.0
-cdef double noise = 5.0 #parameters
-cdef double L = np.sqrt(numberOfPoints/rho)
-cdef double v = 0.03 #as stated in the paper (for optimum results)
-cdef double r = 1.0 #definition of neighbourhood for averaging
-cdef double timedelta = 1.0 #as mentioned in paper
+cdef struct particle:
+	double pos[2]
+	double vel
+	double dir
 
-cdef double[:] pointsX = np.random.uniform(0,L,numberOfPoints)
-cdef double[:] pointsY = np.random.uniform(0,L,numberOfPoints)
-cdef int Nsteps=1500
-cdef double[:] theta = np.random.uniform(-np.pi,np.pi,numberOfPoints) #-pi to pi
+def main():
+	cdef:
+		int numberOfPoints = 40
+	 	double rho = 4.0
+	 	double noise = 5.0 #parameters
+	 	double L = np.sqrt(numberOfPoints/rho)
+	 	double v = 0.03 #as stated in the paper (for optimum results)
+	 	double r = 1.0 #definition of neighbourhood for averaging
+	 	double timedelta = 1.0 #as mentioned in paper
+	 	double[:] pointsX = np.random.uniform(0,L,numberOfPoints)
+	 	double[:] pointsY = np.random.uniform(0,L,numberOfPoints)
+	 	int Nsteps=1500
+	 	double[:] theta = np.random.uniform(-np.pi,np.pi,numberOfPoints) #-pi to pi
+		double[:] orderN = np.empty(Nsteps)
+		double avg, distIJsq, temp
+		int ctr
+		solX = np.empty([Nsteps+1,numberOfPoints])
+		solX[0] = pointsX
+		solY = np.empty([Nsteps+1,numberOfPoints])
+		solY[0] = pointsY
+		solTheta = np.empty([Nsteps+1,numberOfPoints])
+		solTheta[0] = theta
 
-solX = np.empty([Nsteps+1,numberOfPoints])
-solX[0] = pointsX
-solY = np.empty([Nsteps+1,numberOfPoints])
-solY[0] = pointsY
-solTheta = np.empty([Nsteps+1,numberOfPoints])
-solTheta[0] = theta
-cdef double[:] orderN = np.empty(Nsteps)
-cdef double avg, distIJsq, temp
-cdef int ctr
+		solve()
 
 for k in xrange(Nsteps):
 	newTheta = np.empty(numberOfPoints)
@@ -44,7 +52,6 @@ for k in xrange(Nsteps):
 		temp = avg + np.random.uniform(-noise/2,noise/2)
 		#keep angle between -pi and pi
 		newTheta[i] = temp-2*np.pi*np.floor((temp+np.pi)/(2*np.pi))
-
 	orderN[k] = np.sqrt(avgVel[0]**2+avgVel[1]**2)/numberOfPoints
 	posX = solX[k] + xvel*timedelta #updating position
 	posY = solY[k] + yvel*timedelta
