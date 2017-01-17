@@ -1,5 +1,5 @@
 function orderN = vicsek(rho,noise)
-numberOfPoints = 40;
+numberOfPoints = 100;
 %rho = 10.4;
 L = sqrt(numberOfPoints/rho);
 %noise = .4;
@@ -29,10 +29,10 @@ for k=1:Nsteps
         ni = [vel(i) vel(numberOfPoints+i)]/v;
         s = s + ni;
         for j=1:numberOfPoints
-            distIJsq = min([(posX(i) - posX(j))^2 + (posY(i) - posY(j))^2,
-                            (posX(i) + L - posX(j))^2 + (posY(i) - posY(j))^2,
-                            (posX(i) - posX(j))^2 + (posY(i) + L - posY(j))^2,
-                            (posX(i) + L - posX(j))^2 + (posY(i) + L - posY(j))^2]);
+            distIJsq = min([(posX(i) - posX(j))^2 + (posY(i) - posY(j))^2,...
+                (posX(i) + L - posX(j))^2 + (posY(i) - posY(j))^2,...
+                (posX(i) - posX(j))^2 + (posY(i) + L - posY(j))^2,...
+                (posX(i) + L - posX(j))^2 + (posY(i) + L - posY(j))^2]);
             if distIJsq<(r^2)
                 avg = avg + theta(j);
                 ctr = ctr + 1;
