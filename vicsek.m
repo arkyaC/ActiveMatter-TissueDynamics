@@ -1,8 +1,6 @@
 function orderN = vicsek(rho,noise)
 numberOfPoints = 100;
-%rho = 10.4;
 L = sqrt(numberOfPoints/rho);
-%noise = .4;
 v = 0.03; %as stated in the paper (for optimum results)
 r = 1; %definition of neighbourhood for averaging
 
@@ -29,10 +27,16 @@ for k=1:Nsteps
         ni = [vel(i) vel(numberOfPoints+i)]/v;
         s = s + ni;
         for j=1:numberOfPoints
+            %due to periodicity, distance can be calculated in 9 possible ways
             distIJsq = min([(posX(i) - posX(j))^2 + (posY(i) - posY(j))^2,...
-                (posX(i) + L - posX(j))^2 + (posY(i) - posY(j))^2,...
-                (posX(i) - posX(j))^2 + (posY(i) + L - posY(j))^2,...
-                (posX(i) + L - posX(j))^2 + (posY(i) + L - posY(j))^2]);
+                            (posX(i) - (posX(j)+L))^2 + (posY(i) - posY(j))^2,...
+                            (posX(i) - (posX(j)-L))^2 + (posY(i) - posY(j))^2,...
+                            (posX(i) - posX(j))^2 + (posY(i) - (posY(j)-L))^2,...
+                            (posX(i) - posX(j))^2 + (posY(i) - (posY(j)+L))^2,...
+                            (posX(i) - (posX(j)-L))^2 + (posY(i) - (posY(j)-L))^2,...
+                            (posX(i) - (posX(j)+L))^2 + (posY(i) - (posY(j)-L))^2,...
+                            (posX(i) - (posX(j)-L))^2 + (posY(i) - (posY(j)+L))^2,...
+                            (posX(i) - (posX(j)+L))^2 + (posY(i) - (posY(j)+L))^2]);
             if distIJsq<(r^2)
                 avg = avg + theta(j);
                 ctr = ctr + 1;
@@ -59,15 +63,15 @@ end
 % axis([-pi,pi,0,100]);
 
 % write data to dump
-timeSteps = 1:Nsteps;
-fileID = fopen('data/dump.txt','w');
-fprintf(fileID,'%d \t %6.5f \n',[timeSteps;orderN]);
-fclose(fileID);
+% timeSteps = 1:Nsteps;
+% fileID = fopen('data/dump.txt','w');
+% fprintf(fileID,'%d \t %6.5f \n',[timeSteps;orderN]);
+% fclose(fileID);
 
 %plot order parameter against time
-plot(linspace(0,Nsteps,Nsteps),orderN);
-axis([0,Nsteps,0,1]);
-xlabel('Time step');ylabel('Order Parameter');
+% plot(linspace(0,Nsteps,Nsteps),orderN);
+% axis([0,Nsteps,0,1]);
+% xlabel('Time step');ylabel('Order Parameter');
 
 %movie
 % pause(10);
