@@ -22,5 +22,5 @@ fprintf(fileID,'%5.4f \t %5.4f \t %6.5f\n',dataToWrite);
 fclose(fileID);
 % plotting graph
 errorbar(noise,correl,err,'b.');
-axis([0,noiseMax,0,1]);
+axis([0,noiseMax,0,1.1]);
 xlabel('Noise');ylabel('Order Parameter');

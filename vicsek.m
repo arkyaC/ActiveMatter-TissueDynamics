@@ -68,9 +68,9 @@ end
 % fclose(fileID);
 
 %plot order parameter against time
-plot(linspace(0,Nsteps,Nsteps),orderN);
-axis([0,Nsteps,0,1]);
-xlabel('Time step');ylabel('Order Parameter');
+% plot(linspace(0,Nsteps,Nsteps),orderN);
+% axis([0,Nsteps,0,1]);
+% xlabel('Time step');ylabel('Order Parameter');
 
 %movie
 % pause(10);
