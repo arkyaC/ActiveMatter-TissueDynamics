@@ -1,6 +1,6 @@
 rho = 4;
 N = 5;
-noiseMax = 5;
+noiseMax = 5.5;
 noise = linspace(0,noiseMax,20);
 correl=zeros(1,length(noise));
 err=zeros(1,length(noise));

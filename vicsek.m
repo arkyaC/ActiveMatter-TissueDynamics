@@ -1,5 +1,5 @@
 function orderN = vicsek(rho,noise)
-numberOfPoints = 100;
+numberOfPoints = 40;
 L = sqrt(numberOfPoints/rho);
 v = 0.03; %as stated in the paper (for optimum results)
 r = 1; %definition of neighbourhood for averaging
@@ -45,9 +45,10 @@ for k=1:Nsteps
         avgcos = avgcos/ctr;
         avgsin = avgsin/ctr;
         angleMean = atan2(avgsin,avgcos);
-        temp = angleMean + (noise*rand - noise/2);
+        newTheta(i) = angleMean + (noise*rand - noise/2);
+        %temp = angleMean + (noise*rand - noise/2);
         %keep angle between -pi and pi
-        newTheta(i) = temp-2*pi*floor((temp+pi)/(2*pi));
+        %newTheta(i) = temp-2*pi*floor((temp+pi)/(2*pi));
     end
     orderN(k)=sqrt(s(1)^2+s(2)^2)/numberOfPoints;
     theta = newTheta; % update angle values
@@ -67,9 +68,9 @@ end
 % fclose(fileID);
 
 %plot order parameter against time
-% plot(linspace(0,Nsteps,Nsteps),orderN);
-% axis([0,Nsteps,0,1]);
-% xlabel('Time step');ylabel('Order Parameter');
+plot(linspace(0,Nsteps,Nsteps),orderN);
+axis([0,Nsteps,0,1]);
+xlabel('Time step');ylabel('Order Parameter');
 
 %movie
 % pause(10);
