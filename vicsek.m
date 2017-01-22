@@ -6,11 +6,11 @@ r = 1; %definition of neighbourhood for averaging
 
 pointsX =L* rand(1, numberOfPoints);
 pointsY =L* rand(1, numberOfPoints);
-Nsteps=1500;
+Nsteps=1000;
 theta = 2*pi*rand(1,numberOfPoints) - pi; %-pi to pi
 %theta = pi/2 * ones(1,numberOfPoints);
 timedelta = 1; %as mentioned in paper
-y = zeros(Nsteps+1,3*numberOfPoints);
+y = zeros(Nsteps+1,3*numberOfPoints); % initialisation
 y(1,:) = [pointsX,pointsY,theta];
 orderN = zeros(1,Nsteps);
 for k=1:Nsteps
@@ -22,28 +22,30 @@ for k=1:Nsteps
 	vel=[v*cos(theta) v*sin(theta)];
     s = [0,0]; %avg vel init
     for i=1:numberOfPoints %evaluating updated angle parameter
-        avg = 0;
+        avgcos = 0;
+        avgsin = 0;
         ctr = 0;
         ni = [vel(i) vel(numberOfPoints+i)]/v;
         s = s + ni;
         for j=1:numberOfPoints
-            %due to periodicity, distance can be calculated in 9 possible ways
-            distIJsq = min([(posX(i) - posX(j))^2 + (posY(i) - posY(j))^2,...
-                            (posX(i) - (posX(j)+L))^2 + (posY(i) - posY(j))^2,...
-                            (posX(i) - (posX(j)-L))^2 + (posY(i) - posY(j))^2,...
-                            (posX(i) - posX(j))^2 + (posY(i) - (posY(j)-L))^2,...
-                            (posX(i) - posX(j))^2 + (posY(i) - (posY(j)+L))^2,...
-                            (posX(i) - (posX(j)-L))^2 + (posY(i) - (posY(j)-L))^2,...
-                            (posX(i) - (posX(j)+L))^2 + (posY(i) - (posY(j)-L))^2,...
-                            (posX(i) - (posX(j)-L))^2 + (posY(i) - (posY(j)+L))^2,...
-                            (posX(i) - (posX(j)+L))^2 + (posY(i) - (posY(j)+L))^2]);
-            if distIJsq<(r^2)
-                avg = avg + theta(j);
+        	dx = posX(i) - posX(j);
+			dy = posY(i) - posY(j);
+            if abs(dx) > 0.5*L
+				dx = dx - L*sign(dx);
+            end
+            if abs(dy) > 0.5*L
+				dy = dy - L*sign(dy);
+            end
+            if (dx^2+dy^2)<(r^2)
+                avgcos = avgcos + cos(theta(j));
+                avgsin = avgsin + sin(theta(j));
                 ctr = ctr + 1;
             end
         end
-        avg = avg/ctr;
-        temp = avg + (noise*rand - noise/2);
+        avgcos = avgcos/ctr;
+        avgsin = avgsin/ctr;
+        angleMean = atan2(avgsin,avgcos);
+        temp = angleMean + (noise*rand - noise/2);
         %keep angle between -pi and pi
         newTheta(i) = temp-2*pi*floor((temp+pi)/(2*pi));
     end
@@ -54,10 +56,6 @@ for k=1:Nsteps
     posX = posX-L*floor(posX/L); % periodic BC
 	posY = posY-L*floor(posY/L);
     y(k+1,:)=[posX,posY,theta];
-%     visualising distribution of directions
-%     histogram(theta,100);
-%     axis([-pi,pi,0,100]);
-%     pause(0.05);
 end
 % histogram(theta,100);
 % axis([-pi,pi,0,100]);
