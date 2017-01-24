@@ -9,7 +9,7 @@ for k=1:length(noise)
     trials=zeros(1,N);
     for i=1:N
         orderParamData=vicsek(rho,noise(k));
-        trials(i) = mean(orderParamData(end-200:end));
+        trials(i) = mean(orderParamData(end-400:end));
     end
     correl(k)=mean(trials);
     err(k)=sqrt(mean((trials-correl(k)).^2));

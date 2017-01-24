@@ -1,12 +1,12 @@
 function orderN = vicsek(rho,noise)
-numberOfPoints = 40;
+numberOfPoints = 400;
 L = sqrt(numberOfPoints/rho);
 v = 0.03; %as stated in the paper (for optimum results)
 r = 1; %definition of neighbourhood for averaging
 
 pointsX =L* rand(1, numberOfPoints);
 pointsY =L* rand(1, numberOfPoints);
-Nsteps=1000;
+Nsteps=5000;
 theta = 2*pi*rand(1,numberOfPoints) - pi; %-pi to pi
 %theta = pi/2 * ones(1,numberOfPoints);
 timedelta = 1; %as mentioned in paper
