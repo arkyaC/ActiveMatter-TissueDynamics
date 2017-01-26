@@ -1,10 +1,10 @@
 %reflective boundaries
 
-noise = 0;
-numberOfPoints = 10;
+noise = 0.6;
+numberOfPoints = 100;
 % L = sqrt(numberOfPoints/rho);
 L = 5;
-rho = numberOfPoints/(L^2)
+rho = numberOfPoints/(L^2);
 v = 0.05;
 r = 0.2; %definition of neighbourhood for averaging
 r0 = 0.3; %border offset for reflection
@@ -46,18 +46,19 @@ for k=1:Nsteps
         avgcos = avgcos/ctr;
         avgsin = avgsin/ctr;
         angleMean = atan2(avgsin,avgcos);
-        temp = angleMean + (noise*rand - noise/2);
-        newTheta(i) = temp-2*pi*floor((temp+pi)/(2*pi));
+        newTheta(i) = angleMean + (noise*rand - noise/2);
     end
     theta = newTheta; % update angle values
     posX = posX + vel(1:numberOfPoints)*timedelta;
     posY = posY + vel(numberOfPoints+1:end)*timedelta;
     for i = 1:numberOfPoints
         if (L-posX(i)<r0 && cos(theta(i))>0)||(posX(i)<r0 && cos(theta(i))<0)
-            theta(i) = sign( sin(theta(i)) )*pi-theta(i);
+            %theta(i) = sign( sin(theta(i)) )*pi-theta(i);
+            theta(i) = atan2(sin(theta(i)),-cos(theta(i)));
         end
         if (L-posY(i)<r0 && sin(theta(i))>0)||(posY(i)<r0 && sin(theta(i))<0)
-            theta(i) = -theta(i);
+            theta(i) = atan2(-sin(theta(i)),cos(theta(i)));
+            %theta(i) = -theta(i)
         end
     end
     y(k+1,:)=[posX,posY,theta];
