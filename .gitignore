@@ -4,3 +4,4 @@
 *.txt
 simulation\ videos/**
 *.pyc
+*.out
