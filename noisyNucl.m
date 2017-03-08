@@ -1,15 +1,15 @@
 function orderN=noisyNucl(rhoNorm,noise)
 %rhoNorm = 0.1;
 %L=14;
-driftspeed = 1;
+v0 = 1;
 mu = 1;
 tau = 1;
 Req = 5/6;R0 = 1;
-Fadh = 0.75/6;Frep = 5;%Fwall = 50/6;
+Fadh = 0.75;Frep = 30;%Fwall = 50/6;
 % Fadh = 0.75;Frep = 30;%Fwall = 50;
 minAllowableDistance = 0.01; %arbitrary
 %numberOfPoints = floor(2*rhoNorm*L^2/3.14);
-numberOfPoints = 1000;
+numberOfPoints = 100;
 L = R0 * sqrt(numberOfPoints/(2*rhoNorm));
 x = L* rand(1, 10000);
 y = L* rand(1, 10000);
@@ -40,7 +40,8 @@ end
 Nsteps=3000;
 % cutoffIter=Nsteps-100;
 theta = 2*pi*rand(1,numberOfPoints) - pi; %need it in the range of -pi to pi
-timedelta=0.05*R0/driftspeed;
+%timedelta=0.05*R0/v0;
+timedelta=0.005;
 
 y=zeros(Nsteps+1,3*numberOfPoints);
 y(1,:) = [keeperX,keeperY,theta];
@@ -51,7 +52,7 @@ for k=1:Nsteps
 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
 	theta=y(k,2*numberOfPoints+1:end);
     
-	drift=[driftspeed*cos(theta) driftspeed*sin(theta)];
+	drift=[v0*cos(theta) v0*sin(theta)];
     rhs = zeros(1,2*numberOfPoints);
     for i=1:numberOfPoints
         interaxn=[0,0];
@@ -100,7 +101,7 @@ for k=1:Nsteps
     s=[0,0];
     res = zeros(1,numberOfPoints);
     for i=1:numberOfPoints
-        ni=[drift(i) drift(numberOfPoints+i)]/driftspeed;
+        ni=[drift(i) drift(numberOfPoints+i)]/v0;
         vi=[rhs(i) rhs(numberOfPoints+i)];
         normvi=sqrt(vi(1)^2+vi(2)^2);
         vi=vi/normvi;
@@ -119,28 +120,28 @@ for k=1:Nsteps
 	y(k+1,:) = [posX,posY,theta];%Euler stepping
 end
 %plotting the order parameter value against step number
-plot(linspace(0,Nsteps,Nsteps),orderN);
-axis([0,Nsteps,0,1]);
-xlabel('Time step');ylabel('Order Parameter');
-drawnow
+% plot(linspace(0,Nsteps,Nsteps),orderN);
+% axis([0,Nsteps,0,1]);
+% xlabel('Time step');ylabel('Order Parameter');
+% drawnow
 
 % write data to dump
-timeSteps = 1:Nsteps;
-fileID = fopen('data/dump.txt','w');
-fprintf(fileID,'%d \t %6.5f \n',[timeSteps;orderN]);
-fclose(fileID);
+% timeSteps = 1:Nsteps;
+% fileID = fopen('data/dump.txt','w');
+% fprintf(fileID,'%d \t %6.5f \n',[timeSteps;orderN]);
+% fclose(fileID);
 
 %movie
-% for k=1:size(y)
-% 	posX=y(k,1:numberOfPoints); % x position matrix
-% 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
-% 	plot(posX,posY,'b.'); %plot instantaneous position
-%     axis([0,L,0,L]);
-%     axis square;
-%     grid on;
-%     %frames(k) = getframe(gcf);
-%  	pause(.05);
-% end
+for k=1:size(y)
+	posX=y(k,1:numberOfPoints); % x position matrix
+	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
+	plot(posX,posY,'b.'); %plot instantaneous position
+    axis([0,L,0,L]);
+    axis square;
+    grid on;
+    %frames(k) = getframe(gcf);
+ 	pause(.005);
+end
 
 %writing to a file
 % A=[rhoNorm;correl;err];
