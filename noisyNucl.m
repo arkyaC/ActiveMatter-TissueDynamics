@@ -7,7 +7,7 @@ tau = 1;
 Req = 5/6;R0 = 1;
 Fadh = 0.75;Frep = 30;%Fwall = 50/6;
 % Fadh = 0.75;Frep = 30;%Fwall = 50;
-minAllowableDistance = 0.01; %arbitrary
+% minAllowableDistance = 0.01; %arbitrary
 %numberOfPoints = floor(2*rhoNorm*L^2/3.14);
 numberOfPoints = 100;
 L = R0 * sqrt(numberOfPoints/(2*rhoNorm));
@@ -15,29 +15,33 @@ x = L* rand(1, 10000);
 y = L* rand(1, 10000);
 %noise = 0.6; %stochastic noise amplitude
 
-% Initialize first point.
-keeperX = x(1);
-keeperY = y(1);
-% Try dropping down more points.
-counter = 1;
-k=1;
-while counter<numberOfPoints
-	% Get a trial point.
-	thisX = x(k);
-	thisY = y(k);
-	% See how far is is away from existing keeper points.
-	distances = sqrt((thisX-keeperX).^2 + (thisY - keeperY).^2);
-	minDistance = min(distances);
-    if minDistance >= minAllowableDistance
-        counter = counter + 1;
-        keeperX(counter) = thisX;
-        keeperY(counter) = thisY;
-    end
-    k=k+1;
-end
+%testing without min distance criterion
+keeperX = x(1:numberOfPoints);
+keeperY = y(1:numberOfPoints);
+
+% % Initialize first point.
+% keeperX = x(1);
+% keeperY = y(1);
+% % Try dropping down more points.
+% counter = 1;
+% k=1;
+% while counter<numberOfPoints
+% % 	Get a trial point.
+% 	thisX = x(k);
+% 	thisY = y(k);
+% % 	See how far is is away from existing keeper points.
+% 	distances = sqrt((thisX-keeperX).^2 + (thisY - keeperY).^2);
+% 	minDistance = min(distances);
+%     if minDistance >= minAllowableDistance
+%         counter = counter + 1;
+%         keeperX(counter) = thisX;
+%         keeperY(counter) = thisY;
+%     end
+%     k=k+1;
+% end
 
 % numberOfPoints = length(keeperX); % redundant
-Nsteps=3000;
+Nsteps=6000;
 % cutoffIter=Nsteps-100;
 theta = 2*pi*rand(1,numberOfPoints) - pi; %need it in the range of -pi to pi
 %timedelta=0.05*R0/v0;
@@ -119,11 +123,6 @@ for k=1:Nsteps
     theta = theta + timedelta * (res + noiseAmp * (rand(1,numberOfPoints) - 0.5));
 	y(k+1,:) = [posX,posY,theta];%Euler stepping
 end
-%plotting the order parameter value against step number
-% plot(linspace(0,Nsteps,Nsteps),orderN);
-% axis([0,Nsteps,0,1]);
-% xlabel('Time step');ylabel('Order Parameter');
-% drawnow
 
 % write data to dump
 % timeSteps = 1:Nsteps;
@@ -139,9 +138,15 @@ for k=1:size(y)
     axis([0,L,0,L]);
     axis square;
     grid on;
-    %frames(k) = getframe(gcf);
- 	pause(.005);
+    frames(k) = getframe(gcf);
+ 	pause(.001);
 end
+
+%plotting the order parameter value against step number
+plot(linspace(0,Nsteps,Nsteps),orderN);
+axis([0,Nsteps,0,1]);
+xlabel('Time step');ylabel('Order Parameter');
+drawnow
 
 %writing to a file
 % A=[rhoNorm;correl;err];
