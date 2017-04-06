@@ -58,7 +58,7 @@ int main(int argc, char const *argv[]) {
   double* rhsX = new double[N_particles];
   double* rhsY = new double[N_particles];
   double* rhsTheta = new double[N_particles];
-//main solver loop
+  //main solver loop
   for(int k = 0;k<N_steps;k++){
     for (int i = 0;i<N_particles;i++){
       double interaxn[2] = {0,0}; //interaction force vector for ith particle

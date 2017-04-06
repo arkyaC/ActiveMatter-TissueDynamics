@@ -1,47 +1,29 @@
-function orderN=noisyNucl(rhoNorm,noise)
+%max allowed density is 1.39
+% rho = (pi * Req^2 * N) / L^2
+% delX^2 * N = L^2
+% rhoMax = 1.39 when delX = 1.5*Req
+
+function orderN=szabo_grid(rho,noise)
 %rhoNorm = 0.1;
 %L=14;
+numberOfPoints = 100;N=numberOfPoints; % must be perfect square
 v0 = 1;
 mu = 1;
 tau = 1;
 Req = 5/6;R0 = 1;
-Fadh = 0.75;Frep = 30;%Fwall = 50/6;
-% Fadh = 0.75;Frep = 30;%Fwall = 50;
-% minAllowableDistance = 0.01; %arbitrary
-%numberOfPoints = floor(2*rhoNorm*L^2/3.14);
-numberOfPoints = 1000;
-L = R0 * sqrt(numberOfPoints/(2*rhoNorm));
-x = L* rand(1, 10000);
-y = L* rand(1, 10000);
-%noise = 0.6; %stochastic noise amplitude
+Fadh = 0.75;Frep = 30;%Fwall = 50;
+% Fadh = 0.75/6;Frep = 30/6;%Fwall = 50/6;
 
-%testing without min distance criterion
-keeperX = x(1:numberOfPoints);
-keeperY = y(1:numberOfPoints);
+L = Req * sqrt(pi*numberOfPoints/rho);
+delX = L/sqrt(N);
 
-% % Initialize first point.
-% keeperX = x(1);
-% keeperY = y(1);
-% % Try dropping down more points.
-% counter = 1;
-% k=1;
-% while counter<numberOfPoints
-% % 	Get a trial point.
-% 	thisX = x(k);
-% 	thisY = y(k);
-% % 	See how far is is away from existing keeper points.
-% 	distances = sqrt((thisX-keeperX).^2 + (thisY - keeperY).^2);
-% 	minDistance = min(distances);
-%     if minDistance >= minAllowableDistance
-%         counter = counter + 1;
-%         keeperX(counter) = thisX;
-%         keeperY(counter) = thisY;
-%     end
-%     k=k+1;
-% end
+x = delX/2:delX:delX*(sqrt(N)-1)+delX/2;
+keeperX = repmat(x,1,sqrt(N));
+y = x;
+tempY = repmat(y,sqrt(N),1);
+keeperY = reshape(tempY,1,N);
 
-% numberOfPoints = length(keeperX); % redundant
-Nsteps=24000;
+Nsteps=20000; %number of timeSteps
 % cutoffIter=Nsteps-100;
 theta = 2*pi*rand(1,numberOfPoints) - pi; %need it in the range of -pi to pi
 %timedelta=0.05*R0/v0;
@@ -122,7 +104,9 @@ for k=1:Nsteps
     noiseAmp = noise/sqrt(timedelta);
     theta = theta + timedelta * (res + noiseAmp * (rand(1,numberOfPoints) - 0.5));
 	y(k+1,:) = [posX,posY,theta];%Euler stepping
-    k %display status
+    if(mod(k,200) == 0) 
+        k %display status
+    end
 end
 
 % write data to dump
@@ -131,7 +115,7 @@ end
 % fprintf(fileID,'%d \t %6.5f \n',[timeSteps;orderN]);
 % fclose(fileID);
 
-%movie
+% %movie
 % for k=1:size(y)
 % 	posX=y(k,1:numberOfPoints); % x position matrix
 % 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
@@ -139,8 +123,8 @@ end
 %     axis([0,L,0,L]);
 %     axis square;
 %     grid on;
-%     frames(k) = getframe(gcf);
-%  	pause(.001);
+%     %frames(k) = getframe(gcf);
+%  	pause(.0005);
 % end
 
 %plotting the order parameter value against step number
@@ -148,11 +132,11 @@ figure
 plot(linspace(0,Nsteps,Nsteps),orderN);
 axis([0,Nsteps,0,1]);
 xlabel('Time step');ylabel('Order Parameter');
-drawnow
+% drawnow
 
 %writing to a file
-% A=[rhoNorm;correl;err];
+% A=[rho;correl;err];
 % fileID = fopen('run 1.txt','w');
-% fprintf(fileID,'%10s %8s %8s\n','rhoNorm','order','error');
+% fprintf(fileID,'%10s %8s %8s\n','rho','order','error');
 % fprintf(fileID,'%6.5f %5.4f %6.5f\n',A);
 % fclose(fileID);
