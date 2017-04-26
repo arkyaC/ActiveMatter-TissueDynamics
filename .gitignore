@@ -5,5 +5,3 @@
 simulation\ videos/**
 *.pyc
 *.out
-test.m
-debug_szabo.m

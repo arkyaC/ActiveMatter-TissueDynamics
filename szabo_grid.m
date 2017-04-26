@@ -3,15 +3,15 @@
 % delX^2 * N = L^2
 % rhoMax = 1.39 when delX = 1.5*Req
 
-function [orderN,y,vel_normalized,Nsteps,L]=szabo_grid(rho,noise)
+function orderN=szabo_grid(rho,noise)
 
-numberOfPoints = 49;N=numberOfPoints; % must be perfect square
+numberOfPoints = 100;N=numberOfPoints; % must be perfect square
 v0 = 1; %self-propelling speed
 tau = 1;mu = 1; %parameters
 Req = 5/6; %equilibrium radius
 R0 = 1; %cut-off radius
 
-Fadh = 0;Frep = 30; %force parameters 0.75
+Fadh = 0.75;Frep = 30; %force parameters
 % Fwall = 50;
 
 L = Req * sqrt(pi*numberOfPoints/rho); %domain size (side length)
@@ -39,10 +39,7 @@ y(1,:) = [keeperX,keeperY,theta]; % initial position
 %-----------------------------------------------------------------------------------------
 
 orderN = zeros(1,Nsteps); %stores order parameter at each time step
-
-vel_normalized = zeros(Nsteps,N); %normalised vel
 for k=1:Nsteps
-    k %status
 	posX=y(k,1:numberOfPoints); % x position matrix
 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
 	theta=y(k,2*numberOfPoints+1:end); % direction matrix
@@ -100,17 +97,14 @@ for k=1:Nsteps
     end
     s=[0,0]; %avg velocity initialise
     res = zeros(1,numberOfPoints); %rhs for the angle updation diff eqn
-    n_vel = zeros(1,N);
     for i=1:numberOfPoints
         ni=[drift(i) drift(numberOfPoints+i)]/v0; %unit vector in direction of self-propulsion of i-th particle
         vi=[rhs(i) rhs(numberOfPoints+i)]; %velocity vector of i-th particle
         normvi=sqrt(vi(1)^2+vi(2)^2);
-        n_vel(i) = normvi;
         vi=vi/normvi; %unit vector in the direction of velocity of i-th particle
         s=s+[vi(1) vi(2)]; %calculation of avg velocity (for calculation of order parameter)
         res(i)=asin(ni(1)*vi(2)-ni(2)*vi(1)); %calculation of the rhs of i-th particel theta diff. eqn
     end
-    vel_normalized(k,:) = n_vel;
     orderN(k)=sqrt(s(1)^2+s(2)^2)/numberOfPoints; %order parameter at the k-th step
 	res = (1/tau)*res; %parameter tau being factored in
     %updation of position as per Euler stepping scheme
@@ -129,24 +123,23 @@ for k=1:Nsteps
 %     end
 end
 
-% % plotting the order parameter value against step number
-% plot(linspace(0,Nsteps,Nsteps),orderN);
-% axis([0,Nsteps,0,1]);
-% xlabel('Time step');ylabel('Order Parameter');
-% % drawnow
+% plotting the order parameter value against step number
+plot(linspace(0,Nsteps,Nsteps),orderN);
+axis([0,Nsteps,0,1]);
+xlabel('Time step');ylabel('Order Parameter');
+% drawnow
 
-% write data to ./dump.txt
+% % write data to ./dump.txt
 % timeSteps = 1:Nsteps;
-% fileID = fopen('./dump.txt','w');
+% fileID = fopen('data/dump.txt','w');
 % fprintf(fileID,'%d \t %6.5f \n',[timeSteps;orderN]);
 % fclose(fileID);
-
 
 % %movie
 % for k=1:size(y)
 % 	posX=y(k,1:numberOfPoints); % x position matrix
 % 	posY=y(k,numberOfPoints+1:2*numberOfPoints); % y position matrix
-% 	plot(posX,posY,'b.','MarkerSize',5); %plot instantaneous position
+% 	plot(posX,posY,'b.'); %plot instantaneous position
 %     axis([0,L,0,L]);
 %     axis square;
 %     grid on;
