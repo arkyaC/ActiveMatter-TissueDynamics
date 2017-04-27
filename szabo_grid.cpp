@@ -29,12 +29,12 @@ int main(int argc, char const *argv[]) {
 
   double N=N_particles;
   double mu = 1, tau = 1;
-  double Req = 5.0/6, R0 = 1; //radius parameters
+  double Req_mean = 5.0/6, R0_mean = 1; //radius parameters
   double v0 = 1; //self-propelling velocity
 
   double Fadh = 0.75, Frep = 30; //force parameters
 
-  double L = Req * sqrt(pi*((double)(N_particles))/rho); //length of a side
+  double L = Req_mean * sqrt(pi*((double)(N_particles))/rho); //length of a side
   double delX = L/sqrt(N);
   double delY = delX;
 
@@ -42,6 +42,8 @@ int main(int argc, char const *argv[]) {
   mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
   uniform_real_distribution<> dis(0,1); //uniform distribution on [0,1)
 
+  double* Req = new double[N_particles];
+  double* R0 = new double[N_particles];
   double* xpos = new double[N_particles];
   double* ypos = new double[N_particles];
   double* theta = new double[N_particles];
@@ -50,20 +52,23 @@ int main(int argc, char const *argv[]) {
 	int ctr = 0;
 	int M = (int)sqrt(N_particles);
   for (int i=0;i<N_particles;i++){
-    xpos[i] = delX/2 + delX*ctr;
+    xpos[i] = delX/2 + delX*ctr; //x coordinate
     ctr = (ctr+1) % M;
   }
   ctr = -1;
   for (int i=0;i<N_particles;i++){
   	if (i%M==0)
     	ctr++;
-    ypos[i] = delY/2 + delY*ctr;
+    ypos[i] = delY/2 + delY*ctr; //y coordinate
   }
   for (int i=0;i<N_particles;i++){
-  	theta[i] = 2 * pi * dis(gen) - pi;
+  	theta[i] = 2 * pi * dis(gen) - pi; //direction of self-propulsion
+    Req[i] = Req_mean + 0.1 * Req_mean * (dis(gen) - 0.5);
+    R0[i] = R0_mean;
+    cout<<i<<"\t Req = "<<Req[i]<<"\tR0 = "<<R0[i]<<endl;
   }
 
-  double delT = 0.005*R0/v0;
+  double delT = 0.005*R0_mean/v0;
   double noiseAmp = noise/sqrt(delT);
 
   double** solX = new double*[N_steps+1];
@@ -122,13 +127,13 @@ int main(int argc, char const *argv[]) {
         double dijSq = dx*dx + dy*dy;
         double dij = sqrt(dijSq);
         double eij[2] = {dx/dij,dy/dij};
-        if (dijSq<Req*Req){
-            interaxn[0] -= Frep*(dij-Req)/Req * eij[0];
-            interaxn[1] -= Frep*(dij-Req)/Req * eij[1];
+        if (dijSq<Req[i]*Req[i]){
+            interaxn[0] -= Frep*(dij-Req[i])/Req[i] * eij[0];
+            interaxn[1] -= Frep*(dij-Req[i])/Req[i] * eij[1];
           }
-        else if (dijSq>=Req*Req && dijSq<R0*R0){
-            interaxn[0] -= Fadh*(dij-Req)/(R0-Req) * eij[0];
-            interaxn[1] -= Fadh*(dij-Req)/(R0-Req) * eij[1];
+        else if (dijSq>=Req[i]*Req[i] && dijSq<R0[i]*R0[i]){
+            interaxn[0] -= Fadh*(dij-Req[i])/(R0[i]-Req[i]) * eij[0];
+            interaxn[1] -= Fadh*(dij-Req[i])/(R0[i]-Req[i]) * eij[1];
           }
       }
       interaxn[0] *= mu;
