@@ -14,7 +14,6 @@ was producing NaN's (for order parameter) after 800 steps or so in previous code
 */
 int main(int argc, char const *argv[]) {
   double noise, rho;
-  int N=N_particles;
 	if(argc==1)
     noise = 0.6, rho = 0.3; //densty, noise
   else if(argc!=3){
@@ -22,8 +21,8 @@ int main(int argc, char const *argv[]) {
     return 0;
   }
   else{
-    rho = atof(argv[1]);
-    noise = atof(argv[2]);
+    rho = atof(argv[1])
+    noise = atof(argv[2])
   }
 
   double mu = 1, tau = 1; 
@@ -53,7 +52,7 @@ int main(int argc, char const *argv[]) {
   }
   ctr = -1;
   for (int i=0;i<N_particles;i++){
-  	if (i%M==0) 
+  	if i%M==0 
     	ctr++;
     ypos[i] = delY/2 + delY*ctr;
   }
