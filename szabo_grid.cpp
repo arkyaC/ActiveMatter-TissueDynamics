@@ -3,8 +3,8 @@
 #include <fstream>
 #include <cmath>
 #include <stdlib.h>
-#define pi 3.14159
-#define N_steps 4000
+//#define pi 3.14159
+#define N_steps 40000
 #define N_particles 49
 using namespace std;
 
@@ -21,8 +21,8 @@ int main(int argc, char const *argv[]) {
     return 0;
   }
   else{
-    rho = atof(argv[1])
-    noise = atof(argv[2])
+    rho = atof(argv[1]);
+    noise = atof(argv[2]);
   }
 
 	double pi = 4*atan(1.0);
@@ -45,15 +45,12 @@ int main(int argc, char const *argv[]) {
   double* xpos = new double[N_particles];
   double* ypos = new double[N_particles];
   double* theta = new double[N_particles];
-	cout<<"l="<<L<<endl;
-	cout<<"delX="<<delX<<endl;
+
 //---------------------------initializing sol matrices-----------------------------
 	int ctr = 0;
 	int M = (int)sqrt(N_particles);
-	cout<<"M="<<M<<endl;
   for (int i=0;i<N_particles;i++){
     xpos[i] = delX/2 + delX*ctr;
-		cout<<i<<"\t"<<xpos[i]<<endl;
     ctr = (ctr+1) % M;
   }
   ctr = -1;
@@ -84,7 +81,6 @@ int main(int argc, char const *argv[]) {
 
   double* order = new double[N_steps];//order parameter of the kth step
   for (int i = 0;i<N_particles;i++){
-    //cout<<i<<endl;
     solX[0][i] = xpos[i];//Initialize 0th step
     solY[0][i] = ypos[i];
     solTheta[0][i] = theta[i];
@@ -97,8 +93,21 @@ int main(int argc, char const *argv[]) {
   double* rhsX = new double[N_particles];
   double* rhsY = new double[N_particles];
   double* rhsTheta = new double[N_particles];
+
+	float progress = 0.0;
+	int progBarWidth = 60;
   //---------------------------main solver loop-----------------------------------
   for(int k = 0;k<N_steps;k++){
+		//progress bar
+		if(k%100==0){
+			progress = (k*1.0)/N_steps;
+			int pos = progBarWidth * progress;
+			cout<<"\r"<<(progress*100)<<"% complete: ";
+			cout<<string(pos,'|');
+			cout.flush();
+		}
+
+		//interaction forces evaluation
     for (int i = 0;i<N_particles;i++){
       double interaxn[2] = {0,0}; //interaction force vector for ith particle
       for (int j = 0;j<N_particles;j++){
@@ -152,6 +161,7 @@ int main(int argc, char const *argv[]) {
 
   }
 	dump_pos.close();
+	cout<<"\n Done"<<endl;
 
   ofstream dump_data;
   dump_data.open("order_dump.txt");
