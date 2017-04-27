@@ -154,12 +154,14 @@ int main(int argc, char const *argv[]) {
 	dump_pos.close();
 
   ofstream dump_data;
-<<<<<<< HEAD
+//<<<<<<< HEAD
   dump_data.open("order_dump.txt");
+/*
 =======
   dump_data.open("cpp_dump.txt");
   //dump_data<<"Timestep\tOrder Parameter\n";
 >>>>>>> 22e1a0e968ab087115dfc8e833aafb92f8d4acee
+*/
   for (int i=0;i<N_steps;i++){
     dump_data<<(i+1)<<"\t"<<order[i]<<"\n";
   }
