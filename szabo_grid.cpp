@@ -2,15 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
-<<<<<<< HEAD
-#include <math.h>
-//#define pi 3.14159
-#define N_steps 20000
-=======
 #include <stdlib.h>
 #define pi 3.14159
 #define N_steps 4000
->>>>>>> 22e1a0e968ab087115dfc8e833aafb92f8d4acee
 #define N_particles 49
 using namespace std;
 
