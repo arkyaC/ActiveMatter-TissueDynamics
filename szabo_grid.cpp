@@ -2,21 +2,25 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
-#define pi 3.14159
-#define N_steps 4000
+#include <math.h>
+//#define pi 3.14159
+#define N_steps 20000
 #define N_particles 49
 using namespace std;
 //was producing NaN's (for order parameter) after 800 steps or so in previous code
 int main(int argc, char const *argv[]) {
-	double noise = 0.6, rho = 0.3; //densty, noise
+	double noise = 0.6, rho = 0.4; //densty, noise
 
-  double mu = 1, tau = 1; 
-  double Req = 5/6, R0 = 1; //radius parameters
+	double pi = 4*atan(1.0);
+
+  double N=N_particles;
+  double mu = 1, tau = 1;
+  double Req = 5.0/6, R0 = 1; //radius parameters
   double v0 = 1; //self-propelling velocity
-  
+
   double Fadh = 0.75, Frep = 30; //force parameters
-  
-  double L = Req * sqrt(pi*N_particles/rho); //length of a side
+
+  double L = Req * sqrt(pi*((double)(N_particles))/rho); //length of a side
   double delX = L/sqrt(N);
   double delY = delX;
 
@@ -27,27 +31,30 @@ int main(int argc, char const *argv[]) {
   double* xpos = new double[N_particles];
   double* ypos = new double[N_particles];
   double* theta = new double[N_particles];
-
+	cout<<"l="<<L<<endl;
+	cout<<"delX="<<delX<<endl;
+//---------------------------initializing sol matrices-----------------------------
 	int ctr = 0;
 	int M = (int)sqrt(N_particles);
+	cout<<"M="<<M<<endl;
   for (int i=0;i<N_particles;i++){
     xpos[i] = delX/2 + delX*ctr;
+		cout<<i<<"\t"<<xpos[i]<<endl;
     ctr = (ctr+1) % M;
-    //theta[i] = 2 * pi * dis(gen) - pi;
   }
   ctr = -1;
   for (int i=0;i<N_particles;i++){
-  	if i%M==0 
+  	if (i%M==0)
     	ctr++;
     ypos[i] = delY/2 + delY*ctr;
   }
   for (int i=0;i<N_particles;i++){
   	theta[i] = 2 * pi * dis(gen) - pi;
   }
-  
+
   double delT = 0.005*R0/v0;
   double noiseAmp = noise/sqrt(delT);
-  
+
   double** solX = new double*[N_steps+1];
   for(int i=0;i<N_steps+1;i++){
     solX[i] = new double[N_particles];
@@ -69,10 +76,14 @@ int main(int argc, char const *argv[]) {
     solTheta[0][i] = theta[i];
   }
 
+	ofstream dump_pos;
+	dump_pos.open("movie_dump.txt");
+
+	ctr = 0;
   double* rhsX = new double[N_particles];
   double* rhsY = new double[N_particles];
   double* rhsTheta = new double[N_particles];
-  //main solver loop
+  //---------------------------main solver loop-----------------------------------
   for(int k = 0;k<N_steps;k++){
     for (int i = 0;i<N_particles;i++){
       double interaxn[2] = {0,0}; //interaction force vector for ith particle
@@ -117,13 +128,19 @@ int main(int argc, char const *argv[]) {
       solY[k+1][i] = solY[k][i] + delT*rhsY[i];
       solY[k+1][i] -= L*floor(solY[k+1][i]/L);//wrapping around excesses
       solTheta[k+1][i] = solTheta[k][i] + delT*(rhsTheta[i]/tau + noiseAmp * (dis(gen)-0.5));
+			if(k%10==0){
+				if(i==0)
+					ctr++;
+				dump_pos<<ctr<<"\t"<<i<<"\t"<<solX[k][i]<<"\t"<<solY[k][i]<<"\t"<<cos(solTheta[k][i])<<"\t"<<sin(solTheta[k][i])<<endl;
+			}
     }
     order[k] = sqrt(pow(avgvel[0],2)+pow(avgvel[1],2))/N_particles;
+
   }
+	dump_pos.close();
 
   ofstream dump_data;
-  dump_data.open("dump.txt");
-  dump_data<<"Timestep\tOrder Parameter\n";
+  dump_data.open("order_dump.txt");
   for (int i=0;i<N_steps;i++){
     dump_data<<(i+1)<<"\t"<<order[i]<<"\n";
   }
