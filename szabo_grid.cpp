@@ -2,14 +2,34 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+<<<<<<< HEAD
 #include <math.h>
 //#define pi 3.14159
 #define N_steps 20000
+=======
+#include <stdlib.h>
+#define pi 3.14159
+#define N_steps 4000
+>>>>>>> 22e1a0e968ab087115dfc8e833aafb92f8d4acee
 #define N_particles 49
 using namespace std;
-//was producing NaN's (for order parameter) after 800 steps or so in previous code
+
+/*
+----------------------RUN CODE WITH COMMAND LINE INPUTS density AND noise IN THAT ORDER-------------------
+was producing NaN's (for order parameter) after 800 steps or so in previous code
+*/
 int main(int argc, char const *argv[]) {
-	double noise = 0.6, rho = 0.4; //densty, noise
+  double noise, rho;
+	if(argc==1)
+    noise = 0.6, rho = 0.3; //densty, noise
+  else if(argc!=3){
+    cout<<"Invalid arguments! Must enter both noise and density parameter"<<endl;
+    return 0;
+  }
+  else{
+    rho = atof(argv[1])
+    noise = atof(argv[2])
+  }
 
 	double pi = 4*atan(1.0);
 
@@ -140,7 +160,12 @@ int main(int argc, char const *argv[]) {
 	dump_pos.close();
 
   ofstream dump_data;
+<<<<<<< HEAD
   dump_data.open("order_dump.txt");
+=======
+  dump_data.open("cpp_dump.txt");
+  //dump_data<<"Timestep\tOrder Parameter\n";
+>>>>>>> 22e1a0e968ab087115dfc8e833aafb92f8d4acee
   for (int i=0;i<N_steps;i++){
     dump_data<<(i+1)<<"\t"<<order[i]<<"\n";
   }
