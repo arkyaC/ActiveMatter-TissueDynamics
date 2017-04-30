@@ -9,8 +9,8 @@
 using namespace std;
 
 /*
+sizes of particles, i.e. R_eq are selected from a uniform distribution
 ----------------------RUN CODE WITH COMMAND LINE INPUTS density AND noise IN THAT ORDER-------------------
-was producing NaN's (for order parameter) after 800 steps or so in previous code
 */
 int main(int argc, char const *argv[]) {
   double noise, rho;
@@ -64,7 +64,8 @@ int main(int argc, char const *argv[]) {
   for (int i=0;i<N_particles;i++){
   	theta[i] = 2 * pi * dis(gen) - pi; //direction of self-propulsion
     Req[i] = Req_mean + 0.1 * Req_mean * (dis(gen) - 0.5);
-    R0[i] = R0_mean;
+    //R0[i] = R0_mean;
+    R0[i] = (6.0/5) * Req[i];
     cout<<i<<"\t Req = "<<Req[i]<<"\tR0 = "<<R0[i]<<endl;
   }
 
