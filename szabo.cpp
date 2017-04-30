@@ -3,15 +3,25 @@
 #include <fstream>
 #include <cmath>
 #define pi 3.14159
-#define N_steps 4000
-#define N_particles 1000
+#define N_steps 40000
+#define N_particles 49
 using namespace std;
-//producing NaN's (for order parameter) after 800 steps or so
+
 int main(int argc, char const *argv[]) {
+  double noise, rhoNorm;
+	if(argc==1)
+    noise = 0.6, rhoNorm = 0.3; //densty, noise
+  else if(argc!=3){
+    cout<<"Invalid arguments! Must enter both noise and density parameter"<<endl;
+    return 0;
+  }
+  else{
+    rhoNorm = atof(argv[1]);
+    noise = atof(argv[2]);
+  }
 
   double mu = 1, tau = 1, Req = 5.0/6, R0 = 1, Fadh = 0.75, Frep = 30, v0 = 1;
-  double noise = 0.6, rhoNorm = 0.3; //tunable parameters
-  double L = R0 * sqrt(N_particles/(2*rhoNorm)); //rhoMax = 2
+  double L = R0 * sqrt((1.0*N_particles)/(2*rhoNorm)); //rhoMax = 2
 
   random_device rd;  //Will be used to obtain a seed for the random number engine
   mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
@@ -108,8 +118,7 @@ int main(int argc, char const *argv[]) {
   }
 
   ofstream dump_data;
-  dump_data.open("dump.txt");
-  dump_data<<"Timestep\tOrder Parameter\n";
+  dump_data.open("ungridded_order_dump.txt");
   for (int i=0;i<N_steps;i++){
     dump_data<<(i+1)<<"\t"<<order[i]<<"\n";
   }
