@@ -6,3 +6,4 @@ simulation\ videos/**
 *.pyc
 *.out
 graphs/**
+data/**
