@@ -4,28 +4,11 @@
 #include <fstream>
 #include <random>
 #include <cmath>
+
 #define N_steps 10000
-#define ensmblMax 50
+#define default_ensemble_size 100
 
 using namespace std;
-
-int main(int argc, char const *argv[]){
-  //int N_beads=5;
-  float progress = 0.0;
-  int progBarWidth = 60;
-  for(int ctr=0;ctr<ensmblMax;ctr++){
-    //progress bar
-    progress = ((ctr+1)*1.0)/ensmblMax;
-    int pos = progBarWidth * progress;
-    cout<<"\r"<<(progress*100)<<"% complete: ";
-    cout<<string(pos,'|');
-    cout.flush();
-
-    solver(ctr);
-  }
-  cout<<endl;
-  return 0;
-}
 
 void solver(int ctr) {
   //const int N_beads = beads;
@@ -109,7 +92,7 @@ void solver(int ctr) {
   //cout<<endl;//for the progress bar
 
   ofstream dump_com;
-  fileName = "./data/Rouse/com_dump_"+ctr+".txt";
+  fileName = "./data/Rouse/com_dump_"+to_string(ctr)+".txt";
   dump_com.open(fileName);
   for (int i=0;i<N_steps;i++){
     if (i%10==0){
@@ -124,4 +107,29 @@ void solver(int ctr) {
     delete solY[i];
   }
   delete solX;delete solY;
+}
+
+int main(int argc, char const *argv[]){
+  if(argc!=2){
+    cout<<"Usage:"<<argv[0]<<"ensemble size (positive integer)"<<endl;
+    return 1;
+  }
+  int ensmblMax=atoi(argv[1]);
+  if(ensmblMax<=0)
+    ensmblMax = default_ensemble_size;
+
+  float progress = 0.0;
+  int progBarWidth = 60;
+  for(int ctr=0;ctr<ensmblMax;ctr++){
+    //progress bar
+    progress = ((ctr+1)*1.0)/ensmblMax;
+    int pos = progBarWidth * progress;
+    cout<<"\r"<<(progress*100)<<"% complete: ";
+    cout<<string(pos,'|');
+    cout.flush();
+
+    solver(ctr);
+  }
+  cout<<endl;
+  return 0;
 }
