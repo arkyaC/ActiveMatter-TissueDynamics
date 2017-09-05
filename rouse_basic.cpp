@@ -66,7 +66,7 @@ int main(int argc, char const *argv[]) {
 			cout.flush();
 		}
 
-    //comX[k] = 0.0; comY[k] = 0.0;
+    delcomX[k]=0;delcomY[k]=0;
 
     for(int i=1;i<=N_beads;i++){
       double rhs_i = (-1)*(k_eff)*(2*solX[k][i] - solX[k][i+1] - solX[k][i-1]) ;

@@ -1,4 +1,4 @@
-//---------------------------incomplete------------------------------
+//MAKE SURE THAT THERE IS A data/Rouse/ FOLDER inside the current directory for storing data
 //-----------plotting centre of mass as a function of time-----------
 #include <iostream>
 #include <fstream>
@@ -9,6 +9,10 @@
 #define default_ensemble_size 100
 
 using namespace std;
+
+random_device rd;
+mt19937 gen(rd());//seeding
+normal_distribution<> dis(0.0,1.0);//Gaussian random number
 
 void solver(int ctr) {
   //const int N_beads = beads;
@@ -23,9 +27,11 @@ void solver(int ctr) {
   double* xpos = new double[N_eff];
   double* ypos = new double[N_eff];
 
+  /*
   random_device rd;
   mt19937 gen(rd());//seeding
   normal_distribution<> dis(0.0,1.0);//Gaussian random number
+  */
 
   double* comX = new double[N_steps+1];
   double* comY = new double[N_steps+1];
@@ -58,6 +64,7 @@ void solver(int ctr) {
   double* delcomX = new double[N_steps+1];
   double* delcomY = new double[N_steps+1];
   double* comSq = new double[N_steps+1];
+
   /*
   float progress = 0.0;
   int progBarWidth = 60;
@@ -73,6 +80,9 @@ void solver(int ctr) {
       cout.flush();
     }
     */
+
+    delcomX[k]=0;delcomY[k]=0;
+
     for(int i=1;i<=N_beads;i++){
       double rhs_i = (-1)*(k_eff)*(2*solX[k][i] - solX[k][i+1] - solX[k][i-1]) ;
       solX[k+1][i] = solX[k][i] + rhs_i * delT + dis(gen)*sqrt(4*D*delT);
@@ -108,7 +118,7 @@ void solver(int ctr) {
   }
   delete solX;delete solY;
 }
-
+//MAIN function
 int main(int argc, char const *argv[]){
   if(argc!=2){
     cout<<"Usage:"<<argv[0]<<"ensemble size (positive integer)"<<endl;
@@ -117,6 +127,8 @@ int main(int argc, char const *argv[]){
   int ensmblMax=atoi(argv[1]);
   if(ensmblMax<=0)
     ensmblMax = default_ensemble_size;
+
+  system("exec rm -rf ./data/Rouse/*");//emptying the folder containing old data files
 
   float progress = 0.0;
   int progBarWidth = 60;
