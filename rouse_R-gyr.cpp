@@ -1,14 +1,28 @@
-//------------------don't modify delT carelessly, don't lower it from current value-----------------
+//MAKE SURE THAT THERE IS A data/Rouse/ FOLDER inside the current directory for storing data
+//-----------plotting radius of gyration as a function of monomer units-----------
+
+
+//------------------------!!!!!!INCOMPLETE!!!!!!!--------------------------------
+
+
 #include <iostream>
 #include <fstream>
 #include <random>
 #include <cmath>
+
 #define N_steps 10000
+#define default_ensemble_size 100
 
 using namespace std;
 
-int main(int argc, char const *argv[]) {
-  const int N_beads = 5;
+random_device rd;
+mt19937 gen(rd());//seeding
+normal_distribution<> dis(0.0,1.0);//Gaussian random number
+
+void solver(int ctr) {
+  //const int N_beads = beads;
+  const int N_beads=5;
+  string fileName;
 
   int N_eff = N_beads + 2;
   double L = 1.0; //length of chain
@@ -18,13 +32,15 @@ int main(int argc, char const *argv[]) {
   double* xpos = new double[N_eff];
   double* ypos = new double[N_eff];
 
+  /*
   random_device rd;
   mt19937 gen(rd());//seeding
   normal_distribution<> dis(0.0,1.0);//Gaussian random number
+  */
 
   double* comX = new double[N_steps+1];
   double* comY = new double[N_steps+1];
-  comX[0]=0.0;comY[0]=0.0;//calculating center of mass position
+  comX[0]=0.0;comY[0]=0.0; //calculating center of mass position
 
   for (int i=1;i<=N_beads;i++){
     xpos[i] = (L/(N_beads-1))*(i-1); //initially on a 1D lattice
@@ -52,20 +68,23 @@ int main(int argc, char const *argv[]) {
 
   double* delcomX = new double[N_steps+1];
   double* delcomY = new double[N_steps+1];
-  double* comSq = new double[N_steps+1];
+  double* R_gyr = new double[N_steps+1];
 
-  float progress = 0.0;
-	int progBarWidth = 60;
+  //float progress = 0.0;
+  //int progBarWidth = 60;
+  
   for(int k = 0;k<N_steps;k++){
+    /*
     //progress bar
-		if(k%100==0){
-			progress = (k*1.0)/N_steps;
-			int pos = progBarWidth * progress;
-			cout<<"\r"<<(progress*100)<<"% complete: ";
-			cout<<string(pos,'|');
-			cout.flush();
-		}
-
+    if(k%100==0){
+      progress = (k*1.0)/N_steps;
+      int pos = progBarWidth * progress;
+      cout<<"\r"<<(progress*100)<<"% complete: ";
+      cout<<string(pos,'|');
+      cout.flush();
+    }
+    */
+    
     delcomX[k]=0;delcomY[k]=0;
 
     for(int i=1;i<=N_beads;i++){
@@ -79,20 +98,62 @@ int main(int argc, char const *argv[]) {
     }
     comX[k+1] = comX[k] + delcomX[k]/N_beads;
     comY[k+1] = comY[k] + delcomY[k]/N_beads;
-    comSq[k] = pow(comX[k],2) + pow(comY[k],2);
+
+    R_gyr[k]=0;//initialisation
+    for(int i=1;i<=N_beads;i++){
+      R_gyr[k] += (1.0/N_beads)*(pow(solX[k][i]-comX[k],2) + pow(solY[k][i]-comY[k],2));
+    }
+    R_gyr[k] = sqrt(R_gyr[k]);
+    
     //boundary conditions
     solX[k+1][0] = solX[k+1][1]; solX[k+1][N_beads+1] = solX[k+1][N_beads];
     solY[k+1][0] = solY[k+1][1]; solY[k+1][N_beads+1] = solY[k+1][N_beads];
   }
-  cout<<endl;
+  //cout<<endl;//for the progress bar
 
-  ofstream dump_com;
-  dump_com.open("com_dump.txt");
+  ofstream dump_gyr;
+  fileName = "./data/Rouse/gyr_dump_"+to_string(ctr)+".txt";
+  dump_gyr.open(fileName);
   for (int i=0;i<N_steps;i++){
     if (i%10==0){
-      dump_com<<(i+1)<<"\t"<<comSq[i]<<"\n";
+      dump_gyr<<(i+1)<<"\t"<<R_gyr[i]<<"\n";
     }
   }
-  dump_com.close();
+  dump_gyr.close();
+
+  delete xpos;delete ypos;delete comX;delete comY;delete R_gyr;delete delcomX;delete delcomY;
+  for(int i=0;i<N_steps+1;i++){
+    delete solX[i];
+    delete solY[i];
+  }
+  delete solX;delete solY;
+}
+//MAIN function
+int main(int argc, char const *argv[]){
+  int ensmblMax;
+  if(argc!=2){
+    ensmblMax = default_ensemble_size;
+  }
+  else{
+    ensmblMax=atoi(argv[1]);
+  }
+  if(ensmblMax<=0)
+    ensmblMax = default_ensemble_size;
+
+  system("exec rm -rf ./data/Rouse/*");//emptying the folder containing old data files
+
+  float progress = 0.0;
+  int progBarWidth = 60;
+  for(int ctr=0;ctr<ensmblMax;ctr++){
+    //progress bar
+    progress = ((ctr+1)*1.0)/ensmblMax;
+    int pos = progBarWidth * progress;
+    cout<<"\r"<<(progress*100)<<"% complete: ";
+    cout<<string(pos,'|');
+    cout.flush();
+
+    solver(ctr);
+  }
+  cout<<endl;
   return 0;
 }

@@ -1,4 +1,8 @@
-//-----------------to compute ensemble avg of Rcm^2----------------
+//-----------------to compute ensemble avg----------------
+
+
+//             INCOMPLETE
+
 
 #include <iostream>
 #include <fstream>
@@ -6,7 +10,7 @@
 #include <stdlib.h>
 #include <sstream>
 
-#define N_files 500
+#define N_files 200
 using namespace std;
 
 string picker (string a, int b) { //In today,is,a,good,day if b=3, a will be picked (if delimiter was ,)
@@ -25,10 +29,10 @@ int main(){
 	string fileName;
 	ifstream infile;
 	int count = 0;
-	double** avgRcm;
+	double** avgR_gyr;
 	string step_data;
 	
-	fileName = "./data/Rouse/com_dump_0.txt";
+	fileName = "./data/Rouse/gyr_dump_0.txt";
 	infile.open(fileName);
 	if (! infile){
 		cout << "Cannot open input file.\n";
@@ -39,30 +43,30 @@ int main(){
 	}
 	infile.close();infile.clear();
 
-	avgRcm = new double*[count];
+	avgR_gyr = new double*[count];
 	for(int i=0;i<count;i++){
-    	avgRcm[i] = new double[2];
-    	avgRcm[i][1] = 0.0;
+    	avgR_gyr[i] = new double[2];
+    	avgR_gyr[i][1] = 0.0;
   	}
 
 	for(int i=0;i<N_files;i++){
-		fileName = "./data/Rouse/com_dump_"+to_string(i)+".txt";
+		fileName = "./data/Rouse/gyr_dump_"+to_string(i)+".txt";
 		infile.open(fileName);
 		for(int j=0;j<count;j++){
 			string line_data;
 			getline(infile,line_data);
 			if(i==0)
-				avgRcm[j][0] = atof(picker(line_data,1).c_str());
-			avgRcm[j][1] += (1.0/N_files) * atof(picker(line_data,2).c_str());
+				avgR_gyr[j][0] = atof(picker(line_data,1).c_str());
+			avgR_gyr[j][1] += (1.0/N_files) * atof(picker(line_data,2).c_str());
 		}
 		infile.close();infile.clear();
 	}
 
 	ofstream dump_avg;
-	fileName = "./data/Rouse/avg_com.txt";
+	fileName = "./data/Rouse/avg_gyr.txt";
 	dump_avg.open(fileName);
 	for (int i=0;i<count;i++){
-		dump_avg<<avgRcm[i][0]<<"\t"<<avgRcm[i][1]<<"\n";
+		dump_avg<<avgR_gyr[i][0]<<"\t"<<avgR_gyr[i][1]<<"\n";
 	}
 	dump_avg.close();	
 }

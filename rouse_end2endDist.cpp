@@ -22,16 +22,10 @@ int main(int argc, char const *argv[]) {
   mt19937 gen(rd());//seeding
   normal_distribution<> dis(0.0,1.0);//Gaussian random number
 
-  double* comX = new double[N_steps+1];
-  double* comY = new double[N_steps+1];
-  comX[0]=0.0;comY[0]=0.0;//calculating center of mass position
-
   for (int i=1;i<=N_beads;i++){
     xpos[i] = (L/(N_beads-1))*(i-1); //initially on a 1D lattice
-    comX[0] += xpos[i];
     ypos[i] = 0;
   }
-  comX[0] /= N_beads;
   xpos[0] = xpos[1]; ypos[0] = ypos[1];//"ghost" nodes
   xpos[N_beads+1] = xpos[N_beads]; ypos[N_beads+1] = ypos[N_beads];
 
@@ -50,9 +44,7 @@ int main(int argc, char const *argv[]) {
     solY[0][i] = ypos[i];
   }
 
-  double* delcomX = new double[N_steps+1];
-  double* delcomY = new double[N_steps+1];
-  double* comSq = new double[N_steps+1];
+  double* e2eDist = new double[N_steps+1];
 
   float progress = 0.0;
 	int progBarWidth = 60;
@@ -66,33 +58,29 @@ int main(int argc, char const *argv[]) {
 			cout.flush();
 		}
 
-    delcomX[k]=0;delcomY[k]=0;
-
     for(int i=1;i<=N_beads;i++){
       double rhs_i = (-1)*(k_eff)*(2*solX[k][i] - solX[k][i+1] - solX[k][i-1]) ;
       solX[k+1][i] = solX[k][i] + rhs_i * delT + dis(gen)*sqrt(4*D*delT);
-      delcomX[k] += solX[k+1][i] - solX[k][i];
 
       rhs_i = (-1)*(k_eff)*(2*solY[k][i] - solY[k][i+1] - solY[k][i-1]);
       solY[k+1][i] = solY[k][i] + rhs_i * delT + dis(gen)*sqrt(4*D*delT);
-      delcomY[k] += solY[k+1][i] - solY[k][i];
     }
-    comX[k+1] = comX[k] + delcomX[k]/N_beads;
-    comY[k+1] = comY[k] + delcomY[k]/N_beads;
-    comSq[k] = pow(comX[k],2) + pow(comY[k],2);
+    
+    e2eDist[k] = sqrt(pow(solX[k][N_beads]-solX[k][1],2) + pow(solY[k][N_beads]-solY[k][1],2));
+
     //boundary conditions
     solX[k+1][0] = solX[k+1][1]; solX[k+1][N_beads+1] = solX[k+1][N_beads];
     solY[k+1][0] = solY[k+1][1]; solY[k+1][N_beads+1] = solY[k+1][N_beads];
   }
   cout<<endl;
 
-  ofstream dump_com;
-  dump_com.open("com_dump.txt");
+  ofstream dump_e2e;
+  dump_e2e.open("./data/e2e_dump.txt");
   for (int i=0;i<N_steps;i++){
-    if (i%10==0){
-      dump_com<<(i+1)<<"\t"<<comSq[i]<<"\n";
+    if (i%1==0){
+      dump_e2e<<(i+1)<<"\t"<<e2eDist[i]<<"\n";
     }
   }
-  dump_com.close();
+  dump_e2e.close();
   return 0;
 }

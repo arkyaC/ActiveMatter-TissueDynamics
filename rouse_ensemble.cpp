@@ -120,11 +120,13 @@ void solver(int ctr) {
 }
 //MAIN function
 int main(int argc, char const *argv[]){
+  int ensmblMax;
   if(argc!=2){
-    cout<<"Usage:"<<argv[0]<<"ensemble size (positive integer)"<<endl;
-    return 1;
+    ensmblMax = default_ensemble_size;
   }
-  int ensmblMax=atoi(argv[1]);
+  else{
+    ensmblMax=atoi(argv[1]);
+  }
   if(ensmblMax<=0)
     ensmblMax = default_ensemble_size;
 
