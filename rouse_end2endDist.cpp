@@ -1,14 +1,17 @@
 //------------------don't modify delT carelessly, don't lower it from current value-----------------
+// SQUARE of end to end distance
 #include <iostream>
 #include <fstream>
 #include <random>
 #include <cmath>
 #define N_steps 10000
+#define default_ensemble_size 200
 
 using namespace std;
 
-int main(int argc, char const *argv[]) {
-  const int N_beads = 5;
+void solver(int ctr) {
+  const int N_beads = 10;
+  string fileName;
 
   int N_eff = N_beads + 2;
   double L = 1.0; //length of chain
@@ -46,17 +49,7 @@ int main(int argc, char const *argv[]) {
 
   double* e2eDist = new double[N_steps+1];
 
-  float progress = 0.0;
-	int progBarWidth = 60;
   for(int k = 0;k<N_steps;k++){
-    //progress bar
-		if(k%100==0){
-			progress = (k*1.0)/N_steps;
-			int pos = progBarWidth * progress;
-			cout<<"\r"<<(progress*100)<<"% complete: ";
-			cout<<string(pos,'|');
-			cout.flush();
-		}
 
     for(int i=1;i<=N_beads;i++){
       double rhs_i = (-1)*(k_eff)*(2*solX[k][i] - solX[k][i+1] - solX[k][i-1]) ;
@@ -66,21 +59,57 @@ int main(int argc, char const *argv[]) {
       solY[k+1][i] = solY[k][i] + rhs_i * delT + dis(gen)*sqrt(4*D*delT);
     }
     
-    e2eDist[k] = sqrt(pow(solX[k][N_beads]-solX[k][1],2) + pow(solY[k][N_beads]-solY[k][1],2));
+    e2eDist[k] = pow(solX[k][N_beads]-solX[k][1],2) + pow(solY[k][N_beads]-solY[k][1],2);
 
     //boundary conditions
     solX[k+1][0] = solX[k+1][1]; solX[k+1][N_beads+1] = solX[k+1][N_beads];
     solY[k+1][0] = solY[k+1][1]; solY[k+1][N_beads+1] = solY[k+1][N_beads];
   }
-  cout<<endl;
 
   ofstream dump_e2e;
-  dump_e2e.open("./data/e2e_dump.txt");
+  fileName = "./data/Rouse/com_dump_"+to_string(ctr)+".txt";
+  dump_e2e.open(fileName);
   for (int i=0;i<N_steps;i++){
     if (i%1==0){
       dump_e2e<<(i+1)<<"\t"<<e2eDist[i]<<"\n";
     }
   }
   dump_e2e.close();
+
+  delete xpos;delete ypos;delete e2eDist;
+  for(int i=0;i<N_steps+1;i++){
+    delete solX[i];
+    delete solY[i];
+  }
+  delete solX;delete solY;
+}
+
+int main(int argc, char const *argv[]){
+  int ensmblMax;
+  if(argc!=2){
+    ensmblMax = default_ensemble_size;
+  }
+  else{
+    ensmblMax=atoi(argv[1]);
+  }
+  if(ensmblMax<=0)
+    ensmblMax = default_ensemble_size;
+
+  system("exec rm ./data/Rouse/*");//emptying the folder containing old data files
+
+  float progress = 0.0;
+  int progBarWidth = 60;
+  for(int ctr=0;ctr<ensmblMax;ctr++){
+    //progress bar
+    progress = ((ctr+1)*1.0)/ensmblMax;
+    int pos = progBarWidth * progress;
+    cout<<"\r"<<(progress*100)<<"% complete: ";
+    cout<<string(pos,'|');
+    cout.flush();
+
+    solver(ctr);
+  }
+  cout<<endl;
+
   return 0;
 }

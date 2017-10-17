@@ -130,7 +130,7 @@ int main(int argc, char const *argv[]){
   if(ensmblMax<=0)
     ensmblMax = default_ensemble_size;
 
-  system("exec rm -rf ./data/Rouse/*");//emptying the folder containing old data files
+  system("exec rm ./data/Rouse/*");//emptying the folder containing old data files
 
   float progress = 0.0;
   int progBarWidth = 60;

@@ -1,9 +1,5 @@
 //-----------------to compute ensemble avg----------------
 
-
-//             INCOMPLETE
-
-
 #include <iostream>
 #include <fstream>
 #include <cmath>

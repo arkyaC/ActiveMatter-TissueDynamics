@@ -1,5 +1,5 @@
 //MAKE SURE THAT THERE IS A data/Rouse/R_gyr FOLDER inside the current directory for storing data
-//-----------plotting radius of gyration as a function of monomer units-----------
+//-----------plotting SQUARE of radius of gyration as a function of monomer units-----------
 
 #include <iostream>
 #include <fstream>
@@ -111,7 +111,7 @@ void solver(int ctr,int beads) {
 }
 
 int ensemble(int beads){
-  system("exec rm -rf ./data/Rouse/R_gyr/*");//emptying the folder containing old data files
+  system("exec rm ./data/Rouse/R_gyr/*");//emptying the folder containing old data files
 
   //float progress = 0.0;
   //int progBarWidth = 60;
