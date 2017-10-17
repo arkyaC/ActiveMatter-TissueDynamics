@@ -86,7 +86,6 @@ void solver(int ctr,int beads) {
     for(int i=1;i<=N_beads;i++){
       R_gyr[k] += (1.0/N_beads)*(pow(solX[k][i]-comX[k],2) + pow(solY[k][i]-comY[k],2));
     }
-    R_gyr[k] = sqrt(R_gyr[k]);
     
     //boundary conditions
     solX[k+1][0] = solX[k+1][1]; solX[k+1][N_beads+1] = solX[k+1][N_beads];
