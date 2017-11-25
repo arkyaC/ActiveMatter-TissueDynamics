@@ -1,12 +1,12 @@
 //MAKE SURE THAT THERE IS A data/Rouse/ FOLDER inside the current directory for storing data
-//-----------plotting centre of mass as a function of time-----------
+//-----------plotting square of centre of mass distance as a function of time-----------
 #include <iostream>
 #include <fstream>
 #include <random>
 #include <cmath>
 
 #define N_steps 10000
-#define default_ensemble_size 100
+#define default_ensemble_size 500
 
 using namespace std;
 
@@ -16,22 +16,16 @@ normal_distribution<> dis(0.0,1.0);//Gaussian random number
 
 void solver(int ctr) {
   //const int N_beads = beads;
-  const int N_beads=5;
+  const int N_beads=10;
   string fileName;
 
   int N_eff = N_beads + 2;
-  double L = 1.0; //length of chain
-  double D = 1.0, k_eff = 1.0;//D=diffusion coefficient; define k_eff=k/zeta, zeta being the drag coefficient
+  double L = (N_beads-1)*1.0; //length of chain
+  double D = 1.0, k_eff = 2.0;//D=diffusion coefficient; define k_eff=k/zeta, zeta being the drag coefficient
   double delT = .1;
 
   double* xpos = new double[N_eff];
   double* ypos = new double[N_eff];
-
-  /*
-  random_device rd;
-  mt19937 gen(rd());//seeding
-  normal_distribution<> dis(0.0,1.0);//Gaussian random number
-  */
 
   double* comX = new double[N_steps+1];
   double* comY = new double[N_steps+1];
@@ -65,36 +59,22 @@ void solver(int ctr) {
   double* delcomY = new double[N_steps+1];
   double* comSq = new double[N_steps+1];
 
-  /*
-  float progress = 0.0;
-  int progBarWidth = 60;
-  */
   for(int k = 0;k<N_steps;k++){
-    /*
-    //progress bar
-    if(k%100==0){
-      progress = (k*1.0)/N_steps;
-      int pos = progBarWidth * progress;
-      cout<<"\r"<<(progress*100)<<"% complete: ";
-      cout<<string(pos,'|');
-      cout.flush();
-    }
-    */
 
     delcomX[k]=0;delcomY[k]=0;
 
     for(int i=1;i<=N_beads;i++){
       double rhs_i = (-1)*(k_eff)*(2*solX[k][i] - solX[k][i+1] - solX[k][i-1]) ;
-      solX[k+1][i] = solX[k][i] + rhs_i * delT + dis(gen)*sqrt(4*D*delT);
+      solX[k+1][i] = solX[k][i] + rhs_i * delT + dis(gen)*sqrt(2*D*delT);
       delcomX[k] += solX[k+1][i] - solX[k][i];
 
       rhs_i = (-1)*(k_eff)*(2*solY[k][i] - solY[k][i+1] - solY[k][i-1]);
-      solY[k+1][i] = solY[k][i] + rhs_i * delT + dis(gen)*sqrt(4*D*delT);
+      solY[k+1][i] = solY[k][i] + rhs_i * delT + dis(gen)*sqrt(2*D*delT);
       delcomY[k] += solY[k+1][i] - solY[k][i];
     }
     comX[k+1] = comX[k] + delcomX[k]/N_beads;
     comY[k+1] = comY[k] + delcomY[k]/N_beads;
-    comSq[k] = pow(comX[k],2) + pow(comY[k],2);
+    comSq[k] = pow(comX[k]-comX[0],2) + pow(comY[k]-comY[0],2);
     //boundary conditions
     solX[k+1][0] = solX[k+1][1]; solX[k+1][N_beads+1] = solX[k+1][N_beads];
     solY[k+1][0] = solY[k+1][1]; solY[k+1][N_beads+1] = solY[k+1][N_beads];

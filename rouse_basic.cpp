@@ -12,7 +12,7 @@ int main(int argc, char const *argv[]) {
 
   int N_eff = N_beads + 2;
   double L = 1.0; //length of chain
-  double D = 1.0, k_eff = 1.0;//D=diffusion coefficient; define k_eff=k/zeta, zeta being the drag coefficient
+  double D = 1.0, k_eff = 2.0;//D=diffusion coefficient; define k_eff=k/zeta, zeta being the drag coefficient
   double delT = .1;
 
   double* xpos = new double[N_eff];

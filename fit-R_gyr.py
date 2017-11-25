@@ -7,7 +7,7 @@ def f(x,a,b,c): # rhs for ODE solver
     return a*np.power(x,c)+b
 	#return a*np.power(x,.5)+b
 
-file = open('./data/R_gyr-mon-new.txt') 
+file = open('./data/R_gyr-mon.txt') 
 data = np.genfromtxt(file, names=['monomer','radius'])
 
 R_gyr = data['radius']
