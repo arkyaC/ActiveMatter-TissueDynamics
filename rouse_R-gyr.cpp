@@ -72,11 +72,11 @@ void solver(int ctr,int beads) {
 
     for(int i=1;i<=N_beads;i++){
       double rhs_i = (-1)*(k_eff)*(2*solX[k][i] - solX[k][i+1] - solX[k][i-1]) ;
-      solX[k+1][i] = solX[k][i] + rhs_i * delT + dis(gen)*sqrt(4*D*delT);
+      solX[k+1][i] = solX[k][i] + rhs_i * delT + dis(gen)*sqrt(2*D*delT);
       delcomX[k] += solX[k+1][i] - solX[k][i];
 
       rhs_i = (-1)*(k_eff)*(2*solY[k][i] - solY[k][i+1] - solY[k][i-1]);
-      solY[k+1][i] = solY[k][i] + rhs_i * delT + dis(gen)*sqrt(4*D*delT);
+      solY[k+1][i] = solY[k][i] + rhs_i * delT + dis(gen)*sqrt(2*D*delT);
       delcomY[k] += solY[k+1][i] - solY[k][i];
     }
     comX[k+1] = comX[k] + delcomX[k]/N_beads;
