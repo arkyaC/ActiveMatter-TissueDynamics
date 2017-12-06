@@ -1,8 +1,6 @@
 //MAKE SURE THAT THERE IS A data/Rouse/R_gyr FOLDER inside the current directory for storing data
 //-----------plotting SQUARE of radius of gyration as a function of monomer units-----------
 
-//need modifications, incorrect approach
-
 #include <iostream>
 #include <fstream>
 #include <random>
@@ -189,7 +187,7 @@ int main()
     }
     //calculate steady state Radius of gyration <<R_gyr>>
     double steady_state_R = 0;
-    for(int i=1;i<=500;i++){ //averaging over last 500 steps in the steady state
+    for(int i=1;i<=(int)(0.1*count);i++){ //averaging over last 10% steps in the steady state
       steady_state_R += (1.0/500)*avgR_gyr[count-i][1];
     }
     R_gyr_entries[ctr_beads - min_beads][0] = ctr_beads;
