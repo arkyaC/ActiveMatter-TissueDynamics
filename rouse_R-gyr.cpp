@@ -1,6 +1,8 @@
 //MAKE SURE THAT THERE IS A data/Rouse/R_gyr FOLDER inside the current directory for storing data
 //-----------plotting SQUARE of radius of gyration as a function of monomer units-----------
 
+//need modifications, incorrect approach
+
 #include <iostream>
 #include <fstream>
 #include <random>
@@ -22,31 +24,34 @@ void solver(int ctr,int beads) {
   string fileName;
 
   int N_eff = N_beads + 2;
-  double L = 1.0; //length of chain
-  double D = 1.0, k_eff = 1.0;//D=diffusion coefficient; define k_eff=k/zeta, zeta being the drag coefficient
+  double b = sqrt(2.0), kbT = 1.0, zeta = 1.0;//zeta is drag coefficient
+  double k_sp = 2*kbT/(b*b); //spring constant
+  double D = kbT/zeta;
+  // double L = (N_beads-1)*1.0; //length of chain
+  // double D = 1.0, k_eff = 2.0;//D=diffusion coefficient; define k_eff=k/zeta, zeta being the drag coefficient
   double delT = .1;
-
-  double* xpos = new double[N_eff];
-  double* ypos = new double[N_eff];
-
-  /*
-  random_device rd;
-  mt19937 gen(rd());//seeding
-  normal_distribution<> dis(0.0,1.0);//Gaussian random number
-  */
 
   double* comX = new double[N_steps+1];
   double* comY = new double[N_steps+1];
   comX[0]=0.0;comY[0]=0.0; //calculating center of mass position
 
-  for (int i=1;i<=N_beads;i++){
-    xpos[i] = (L/(N_beads-1))*(i-1); //initially on a 1D lattice
-    comX[0] += xpos[i];
-    ypos[i] = 0;
+  //-------------------------setting up the gaussian chain-------------------
+  double* xpos = new double[N_eff];
+  double* ypos = new double[N_eff];
+
+  xpos[1] = 0.0; ypos[1] = 0.0;
+  comX[0]=0.0;comY[0]=0.0;//calculating center of mass position
+  for (int i=2;i<=N_beads;i++){
+    xpos[i] = xpos[i-1] + b*dis(gen); //initially a 
+    ypos[i] = ypos[i-1] + b*dis(gen); //gaussian chain
+    comX[0] += xpos[i];comY[0] += ypos[i];
   }
-  comX[0] /= N_beads;
   xpos[0] = xpos[1]; ypos[0] = ypos[1];//"ghost" nodes
   xpos[N_beads+1] = xpos[N_beads]; ypos[N_beads+1] = ypos[N_beads];
+
+  comX[0] /= N_beads;comY[0] /= N_beads;
+
+  //--------------------------------rouse dynamics---------------------------
 
   //Declare solution matrices
   double** solX = new double*[N_steps+1];
@@ -71,11 +76,11 @@ void solver(int ctr,int beads) {
     delcomX[k]=0;delcomY[k]=0;
 
     for(int i=1;i<=N_beads;i++){
-      double rhs_i = (-1)*(k_eff)*(2*solX[k][i] - solX[k][i+1] - solX[k][i-1]) ;
+      double rhs_i = (-1)*(k_sp/zeta)*(2*solX[k][i] - solX[k][i+1] - solX[k][i-1]) ;
       solX[k+1][i] = solX[k][i] + rhs_i * delT + dis(gen)*sqrt(2*D*delT);
       delcomX[k] += solX[k+1][i] - solX[k][i];
 
-      rhs_i = (-1)*(k_eff)*(2*solY[k][i] - solY[k][i+1] - solY[k][i-1]);
+      rhs_i = (-1)*(k_sp/zeta)*(2*solY[k][i] - solY[k][i+1] - solY[k][i-1]);
       solY[k+1][i] = solY[k][i] + rhs_i * delT + dis(gen)*sqrt(2*D*delT);
       delcomY[k] += solY[k+1][i] - solY[k][i];
     }
@@ -113,21 +118,9 @@ void solver(int ctr,int beads) {
 int ensemble(int beads){
   system("exec rm ./data/Rouse/R_gyr/*");//emptying the folder containing old data files
 
-  //float progress = 0.0;
-  //int progBarWidth = 60;
-
   for(int ctr=0;ctr<default_ensemble_size;ctr++){
-    /*
-    //progress bar
-    progress = ((ctr+1)*1.0)/default_ensemble_size;
-    int pos = progBarWidth * progress;
-    cout<<"\r"<<(progress*100)<<"% complete: ";
-    cout<<string(pos,'|');
-    cout.flush();
-    */
     solver(ctr,beads);
   }
-  //cout<<endl;
 }
 
 string picker (string a, int b) { //In today,is,a,good,day if b=3, a will be picked (if delimiter was ,)

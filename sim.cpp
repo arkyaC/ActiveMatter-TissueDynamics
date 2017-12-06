@@ -1,4 +1,6 @@
 //------------------don't modify delT carelessly, don't lower it from current value-----------------
+
+//FINAL SIMULATION  !!!!!!!!!!!!!!!!INCOMPLETE!!!!!!!!!!!!!
 #include <iostream>
 #include <fstream>
 #include <random>
@@ -16,7 +18,7 @@ int main(int argc, char const *argv[]) {
 
   int N_eff = N_beads + 2;
   double b = 2.0, kbT = 1.0, zeta = 1.0;//zeta is drag coefficient
-  double k = 2*kbT/(b*b); //spring constant
+  double k_sp = 2*kbT/(b*b); //spring constant
   double D = kbT/zeta;
 
   // double L = 1.0; //length of chain
@@ -65,10 +67,10 @@ int main(int argc, char const *argv[]) {
 		}
 
     for(int i=1;i<=N_beads;i++){
-      double rhs_i = (-1)*(k/zeta)*(2*solX[k][i] - solX[k][i+1] - solX[k][i-1]) ;
+      double rhs_i = (-1)*(k_sp/zeta)*(2*solX[k][i] - solX[k][i+1] - solX[k][i-1]) ;
       solX[k+1][i] = solX[k][i] + rhs_i * delT + dis(gen)*sqrt(2*D*delT);
 
-      rhs_i = (-1)*(k/zeta)*(2*solY[k][i] - solY[k][i+1] - solY[k][i-1]);
+      rhs_i = (-1)*(k_sp/zeta)*(2*solY[k][i] - solY[k][i+1] - solY[k][i-1]);
       solY[k+1][i] = solY[k][i] + rhs_i * delT + dis(gen)*sqrt(2*D*delT);
     }
     //boundary conditions

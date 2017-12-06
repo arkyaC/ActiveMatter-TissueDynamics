@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <sstream>
 
-#define N_files 200
+#define N_files 200 //TAKE CARE OF THIS, modify accordingly!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 using namespace std;
 
 string picker (string a, int b) { //In today,is,a,good,day if b=3, a will be picked (if delimiter was ,)
