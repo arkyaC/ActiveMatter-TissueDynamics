@@ -173,10 +173,11 @@ int main()
         avgR_gyr[i][1] = 0.0;
       }
     //evaluating <R_gyr>
+    int max = (int)(0.1*count);//will average over last 10% steps in the steady state
     for(int i=0;i<default_ensemble_size;i++){
       fileName = "./data/Rouse/R_gyr/gyr_dump_"+to_string(i)+".txt";
       infile.open(fileName);
-      for(int j=count-500;j<count;j++){ //calculating <R_gyr> only for last 500 time steps
+      for(int j=count-max;j<count;j++){
         string line_data;
         getline(infile,line_data);
         if(i==0)
@@ -187,8 +188,9 @@ int main()
     }
     //calculate steady state Radius of gyration <<R_gyr>>
     double steady_state_R = 0;
-    for(int i=1;i<=(int)(0.1*count);i++){ //averaging over last 10% steps in the steady state
-      steady_state_R += (1.0/500)*avgR_gyr[count-i][1];
+    
+    for(int i=1;i<=max;i++){ 
+      steady_state_R += (1.0/max)*avgR_gyr[count-i][1];
     }
     R_gyr_entries[ctr_beads - min_beads][0] = ctr_beads;
     R_gyr_entries[ctr_beads - min_beads][1] = steady_state_R;

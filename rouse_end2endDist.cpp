@@ -107,21 +107,9 @@ void solver(int ctr,int beads) {
 int ensemble(int beads){
   system("exec rm ./data/Rouse/e2e_dist/*");//emptying the folder containing old data files
 
-  //float progress = 0.0;
-  //int progBarWidth = 60;
-
   for(int ctr=0;ctr<default_ensemble_size;ctr++){
-    /*
-    //progress bar
-    progress = ((ctr+1)*1.0)/default_ensemble_size;
-    int pos = progBarWidth * progress;
-    cout<<"\r"<<(progress*100)<<"% complete: ";
-    cout<<string(pos,'|');
-    cout.flush();
-    */
     solver(ctr,beads);
   }
-  //cout<<endl;
 }
 
 string picker (string a, int b) { //In today,is,a,good,day if b=3, a will be picked (if delimiter was ,)
@@ -176,10 +164,11 @@ int main()
         avg_e2e[i][1] = 0.0;
       }
     //evaluating <e2e_dist>
+    int max = (int)(0.1*count);//will average over last 10% steps in the steady state
     for(int i=0;i<default_ensemble_size;i++){
       fileName = "./data/Rouse/e2e_dist/e2e_dump_"+to_string(i)+".txt";
       infile.open(fileName);
-      for(int j=count-500;j<count;j++){ //calculating <e2e_dist> only for last 500 time steps
+      for(int j=count-max;j<count;j++){ 
         string line_data;
         getline(infile,line_data);
         if(i==0)
@@ -190,8 +179,9 @@ int main()
     }
     //calculate steady state end to end distance <<e2e_dist>>
     double steady_state_R = 0;
-    for(int i=1;i<=500;i++){ //averaging over last 500 steps in the steady state
-      steady_state_R += (1.0/500)*avg_e2e[count-i][1];
+
+    for(int i=1;i<=max;i++){
+      steady_state_R += (1.0/max)*avg_e2e[count-i][1];
     }
     e2e_entries[ctr_beads - min_beads][0] = ctr_beads;
     e2e_entries[ctr_beads - min_beads][1] = steady_state_R;
