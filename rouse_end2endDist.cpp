@@ -25,8 +25,6 @@ void solver(int ctr,int beads) {
   double b = sqrt(2.0), kbT = 1.0, zeta = 1.0;//zeta is drag coefficient
   double k_sp = 2*kbT/(b*b); //spring constant
   double D = kbT/zeta;
-  // double L = (N_beads-1)*1.0; //length of chain
-  // double D = 1.0, k_eff = 2.0;//D=diffusion coefficient; define k_eff=k/zeta, zeta being the drag coefficient
   double delT = .1;
 
   double* comX = new double[N_steps+1];
@@ -77,7 +75,7 @@ void solver(int ctr,int beads) {
       solY[k+1][i] = solY[k][i] + rhs_i * delT + dis(gen)*sqrt(2*D*delT);
     }
 
-//here goes end to end distance calculation
+    //here goes end to end distance calculation
 
     e2e_dist[k] = pow(solX[k][N_beads]-solX[k][1],2) + pow(solY[k][N_beads]-solY[k][1],2);
     
@@ -86,6 +84,7 @@ void solver(int ctr,int beads) {
     solY[k+1][0] = solY[k+1][1]; solY[k+1][N_beads+1] = solY[k+1][N_beads];
   }
 
+  //-----------------------------dumping solution data in file---------------------------
   ofstream dump_e2e;
   fileName = "./data/Rouse/e2e_dist/e2e_dump_"+to_string(ctr)+".txt";
   dump_e2e.open(fileName);
@@ -104,6 +103,7 @@ void solver(int ctr,int beads) {
   delete solX;delete solY;
 }
 
+//--------------The ensemble() function runs solver code for default_ensemble_size times---------------
 int ensemble(int beads){
   system("exec rm ./data/Rouse/e2e_dist/*");//emptying the folder containing old data files
 
@@ -112,6 +112,7 @@ int ensemble(int beads){
   }
 }
 
+//-------------------------------This is a string parsing function------------------------------------
 string picker (string a, int b) { //In today,is,a,good,day if b=3, a will be picked (if delimiter was ,)
   istringstream ss(a);
   string pick;
@@ -124,9 +125,10 @@ string picker (string a, int b) { //In today,is,a,good,day if b=3, a will be pic
   }
 }
 
+//------Runs simulation on an ensemble, averages output data, and writes the final result in a file---------
 int main()
 {
-  int min_beads = 5,max_beads = 50,N_entries;
+  int min_beads = 5,max_beads = 500,N_entries;
   N_entries = max_beads - min_beads + 1;
   double** e2e_entries = new double*[N_entries];
   for(int i=0;i<N_entries;i++){
@@ -137,7 +139,19 @@ int main()
   int count;
   ifstream infile;
 
+  //progress bar
+  float progress = 0.0;
+  int progBarWidth = 60;
+
   for(int ctr_beads = min_beads;ctr_beads<=max_beads;ctr_beads++){
+    //progress bar
+      if((ctr_beads-min_beads)%10==0){
+      progress = ((ctr_beads-min_beads)*1.0)/(max_beads-min_beads);
+      int pos = progBarWidth * progress;
+      cout<<"\r"<<(progress*100)<<"% complete: ";
+      cout<<string(pos,'|');
+      cout.flush();
+    }
 
     ensemble(ctr_beads); //calling the function that runs simulation over an ensemble of size default_ensemble_size
     //the folder ./data/Rouse/e2e_dist/ now contains e2e_dump_*.txt files for no.of beads=ctr_beads
@@ -165,6 +179,9 @@ int main()
       }
     //evaluating <e2e_dist>
     int max = (int)(0.1*count);//will average over last 10% steps in the steady state
+
+    //int max = 1;//TESTING only initial gaussian chains
+
     for(int i=0;i<default_ensemble_size;i++){
       fileName = "./data/Rouse/e2e_dist/e2e_dump_"+to_string(i)+".txt";
       infile.open(fileName);
@@ -191,9 +208,11 @@ int main()
     }
     delete avg_e2e;
   }
+  cout<<endl;//for progress bar
 
+  
   ofstream dump_e2eVmon;
-  fileName = "./data/Rouse/e2e_dist-mon.txt";
+  fileName = "./data/e2e_dist-mon_500.txt";
   dump_e2eVmon.open(fileName);
   for (int i=0;i<N_entries;i++){
     dump_e2eVmon<<e2e_entries[i][0]<<"\t"<<e2e_entries[i][1]<<"\n";

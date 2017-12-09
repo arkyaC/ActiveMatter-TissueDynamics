@@ -7,3 +7,5 @@ simulation\ videos/**
 *.out
 graphs/**
 data/**
+e2e
+rGyr
