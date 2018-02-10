@@ -6,7 +6,7 @@ from numpy import genfromtxt
 def f(x,b,c): # rhs for ODE solver
     return c*x+b
 
-file = open('./data/e2e_dist-mon_500.txt') #enter correct filename HERE
+file = open('./data/R_gyr-mon_1000.txt') #enter correct filename HERE
 data = np.genfromtxt(file, names=['monomer','radius'])
 
 R_gyr = data['radius']
@@ -24,8 +24,8 @@ xdata = np.linspace(mon_units[0],mon_units[len(mon_units)-1], 2000)
 axes = plt.gca()
 
 plt.xlabel("No. of monomers")
-# plt.ylabel("Radius of gyration sq") #for radius of gyration
-plt.ylabel("End to end distance sq") #for end to end distance
+plt.ylabel("Radius of gyration sq") #for radius of gyration
+# plt.ylabel("End to end distance sq") #for end to end distance
 plt.title("slope="+str(c_opt));
 plt.plot(mon_units, R_gyr, 'g.', label='Simulation data')
 plt.plot(xdata, f(xdata, b_opt, c_opt), 'r-', label='Fitted curve cx + b')

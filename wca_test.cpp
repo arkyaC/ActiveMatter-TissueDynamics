@@ -1,4 +1,4 @@
-//MAKE SURE THAT THERE IS A data/Rouse/e2e_dist FOLDER inside the current directory for storing data
+//MAKE SURE THAT THERE IS A data/wca/e2e_dist FOLDER inside the current directory for storing data
 //-----------plotting SQUARE of end to end distance as a function of monomer units-----------
 
 #include <iostream>
@@ -7,7 +7,7 @@
 #include <cmath>
 #include <sstream>
 
-#define N_steps 2000
+#define N_steps 3000
 #define default_ensemble_size 200
 #define buffer_size 10
 
@@ -26,6 +26,7 @@ void solver(int ctr,int beads) {
   double b = sqrt(2.0), kbT = 1.0, zeta = 1.0;//zeta is drag coefficient
   double k_sp = 2*kbT/(b*b); //spring constant
   double D = kbT/zeta;
+  double epsilon = 1.0; //strength of WCA; range sigma = b
   double delT = .1;
 
   double* comX = new double[N_steps+1];
@@ -69,12 +70,24 @@ void solver(int ctr,int beads) {
   
   for(int k = 0;k<N_steps;k++){    
     for(int i=1;i<=N_beads;i++){
-      double rhs_i = (-1)*(k_sp/zeta)*(2*solX[k][i] - solX[k][i+1] - solX[k][i-1]) ;
-      solX[k+1][i] = solX[k][i] + rhs_i * delT + dis(gen)*sqrt(2*D*delT);
+      //spring potential for adjacent monomers
+      double rhs_x = (-1)*(k_sp/zeta)*(2*solX[k][i] - solX[k][i+1] - solX[k][i-1]);
+      double rhs_y = (-1)*(k_sp/zeta)*(2*solY[k][i] - solY[k][i+1] - solY[k][i-1]);
+      //WCA potential for non-adjacent monomers
+      for(int j=1;j<=N_beads;j++){//need to make this more efficient
+        if(abs(j-i)<2)
+          continue;
+        double rijSq = pow(solX[k][i]-solX[k][j],2) + pow(solY[k][i]-solY[k][j],2);
+        if(rijSq<pow(2,1.0/3)*b*b){
+          rhs_x += 24*epsilon*pow(b,6)*(2*pow(b*b/rijSq,3)-1)*(solX[k][i]-solX[k][j])/pow(rijSq,4);
+          rhs_y += 24*epsilon*pow(b,6)*(2*pow(b*b/rijSq,3)-1)*(solY[k][i]-solY[k][j])/pow(rijSq,4);
+        }
+      }
 
-      rhs_i = (-1)*(k_sp/zeta)*(2*solY[k][i] - solY[k][i+1] - solY[k][i-1]);
-      solY[k+1][i] = solY[k][i] + rhs_i * delT + dis(gen)*sqrt(2*D*delT);
+      solX[k+1][i] = solX[k][i] + rhs_x * delT + dis(gen)*sqrt(2*D*delT);
+      solY[k+1][i] = solY[k][i] + rhs_y * delT + dis(gen)*sqrt(2*D*delT);
     }
+
 
     //here goes end to end distance calculation
 
@@ -87,7 +100,7 @@ void solver(int ctr,int beads) {
 
   //-----------------------------dumping solution data in file---------------------------
   ofstream dump_e2e;
-  fileName = "./data/Rouse/e2e_dist/e2e_dump_"+to_string(ctr)+".txt";
+  fileName = "./data/wca/e2e_dist/e2e_dump_"+to_string(ctr)+".txt";
   dump_e2e.open(fileName);
   for (int i=0;i<N_steps;i++){
     if (i%10==0){
@@ -106,7 +119,7 @@ void solver(int ctr,int beads) {
 
 //--------------The ensemble() function runs solver code for default_ensemble_size times---------------
 int ensemble(int beads){
-  system("exec rm ./data/Rouse/e2e_dist/*");//emptying the folder containing old data files
+  system("exec rm ./data/wca/e2e_dist/*");//emptying the folder containing old data files
 
   for(int ctr=0;ctr<default_ensemble_size;ctr++){
     solver(ctr,beads);
@@ -139,7 +152,7 @@ int main()
   string fileName, fileOutName, step_data;
   int count;
   ifstream infile;
-  ofstream dump_e2eVmon;fileOutName = "./data/wca_test_250.txt";
+  ofstream dump_e2eVmon;fileOutName = "./data/wca_test_245.txt";
   dump_e2eVmon.open(fileOutName); //creating new output text file
   dump_e2eVmon.close();
 
@@ -158,12 +171,12 @@ int main()
     }
 
     ensemble(ctr_beads); //calling the function that runs simulation over an ensemble of size default_ensemble_size
-    //the folder ./data/Rouse/e2e_dist/ now contains e2e_dump_*.txt files for no.of beads=ctr_beads
+    //the folder ./data/wca/e2e_dist/ now contains e2e_dump_*.txt files for no.of beads=ctr_beads
 
     if(ctr_beads==min_beads){
       //counting how many time steps are covered in each file
       count = 0;
-      fileName = "./data/Rouse/e2e_dist/e2e_dump_0.txt";
+      fileName = "./data/wca/e2e_dist/e2e_dump_0.txt";
       infile.open(fileName);
       if (! infile){
         cout << "Cannot open input file 0.\n";
@@ -187,7 +200,7 @@ int main()
     //int max = 1;//TESTING only initial gaussian chains
 
     for(int i=0;i<default_ensemble_size;i++){
-      fileName = "./data/Rouse/e2e_dist/e2e_dump_"+to_string(i)+".txt";
+      fileName = "./data/wca/e2e_dist/e2e_dump_"+to_string(i)+".txt";
       infile.open(fileName);
       for(int j=count-max;j<count;j++){ 
         string line_data;
