@@ -3,9 +3,10 @@
 #include <fstream>
 #include <cmath>
 #include <stdlib.h>
-//#define pi 3.14159
-#define N_steps 40000
-#define N_particles 49
+
+//#define N_steps 40000
+#define N_steps 10000
+#define N_particles 64
 using namespace std;
 
 /*
@@ -15,7 +16,7 @@ sizes of particles, i.e. R_eq are selected from a uniform distribution
 int main(int argc, char const *argv[]) {
   double noise, rho;
 	if(argc==1)
-    noise = 0.6, rho = 0.3; //densty, noise
+    noise = 0.6, rho = 0.3; //density, noise
   else if(argc!=3){
     cout<<"Invalid arguments! Must enter both noise and density parameter"<<endl;
     return 0;
@@ -27,16 +28,23 @@ int main(int argc, char const *argv[]) {
 
 	double pi = 4*atan(1.0);
 
-  double N=N_particles;
-  double mu = 1, tau = 1;
-  double Req_mean = 5.0/6, R0_mean = 1; //radius parameters
+  double N = N_particles;
+  double mu = 1.0, tau = 1.0;
+  double Req_mean = 5.0/6, R0_mean = 1.0; //radius parameters
   double v0 = 1; //self-propelling velocity
+  double polydisp = 0.1; //fraction of polydispersity
 
-  double Fadh = 0.75, Frep = 30; //force parameters
+  double Fadh = 0.75, Frep = 30.0; //force parameters
 
-  double L = Req_mean * sqrt(pi*((double)(N_particles))/rho); //length of a side
-  double delX = L/sqrt(N);
+  double L = R0_mean * sqrt(N/rho); //length of a side set using the given density
+  double delX = L * sqrt(2.0/N);
   double delY = delX;
+  
+  ofstream L_val;
+  L_val.open("../data/zebra/L_val.txt");
+  L_val<<L;
+  L_val.close();
+
 
   random_device rd;  //Will be used to obtain a seed for the random number engine
   mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
@@ -63,8 +71,7 @@ int main(int argc, char const *argv[]) {
   }
   for (int i=0;i<N_particles;i++){
   	theta[i] = 2 * pi * dis(gen) - pi; //direction of self-propulsion
-    Req[i] = Req_mean + 0.1 * Req_mean * (dis(gen) - 0.5);
-    //R0[i] = R0_mean;
+    Req[i] = Req_mean + polydisp * Req_mean * (dis(gen) - 0.5);
     R0[i] = (6.0/5) * Req[i];
     cout<<i<<"\t Req = "<<Req[i]<<"\tR0 = "<<R0[i]<<endl;
   }
@@ -85,7 +92,8 @@ int main(int argc, char const *argv[]) {
     solTheta[i] = new double[N_particles];
   }
 
-  double* order = new double[N_steps];//order parameter of the kth step
+  //double* order = new double[N_steps];//order parameter of the kth step
+  
   for (int i = 0;i<N_particles;i++){
     solX[0][i] = xpos[i];//Initialize 0th step
     solY[0][i] = ypos[i];
@@ -93,7 +101,7 @@ int main(int argc, char const *argv[]) {
   }
 
 	ofstream dump_pos;
-	dump_pos.open("../data/Szabo/movie_dump.txt");
+	dump_pos.open("../data/zebra/movie_dump.txt");
 
 	ctr = 0;
   double* rhsX = new double[N_particles];
@@ -142,15 +150,15 @@ int main(int argc, char const *argv[]) {
       rhsX[i] = v0*cos(solTheta[k][i])+interaxn[0];
       rhsY[i] = v0*sin(solTheta[k][i])+interaxn[1];
     }
-    double avgvel[2] = {0,0};
+    //double avgvel[2] = {0,0};
     for (int i = 0;i<N_particles;i++){
       double ni[2] = {cos(solTheta[k][i]),sin(solTheta[k][i])};
       double vi[2] = {rhsX[i],rhsY[i]};
       double normvi = sqrt(pow(vi[0],2)+pow(vi[1],2));
       vi[0] = vi[0]/normvi;
       vi[1] = vi[1]/normvi;
-      avgvel[0] += vi[0];
-      avgvel[1] += vi[1];
+      //avgvel[0] += vi[0];
+      //avgvel[1] += vi[1];
       rhsTheta[i] = asin(ni[0]*vi[1]-ni[1]*vi[0]);
       solX[k+1][i] = solX[k][i] + delT*rhsX[i];
       solX[k+1][i] -= L*floor(solX[k+1][i]/L);//wrapping around excesses
@@ -160,20 +168,24 @@ int main(int argc, char const *argv[]) {
 			if(k%10==0){
 				if(i==0)
 					ctr++;
-				dump_pos<<ctr<<"\t"<<i<<"\t"<<solX[k][i]<<"\t"<<solY[k][i]<<"\t"<<cos(solTheta[k][i])<<"\t"<<sin(solTheta[k][i])<<endl;
+				
+        dump_pos<<ctr<<"\t"<<i<<"\t"<<solX[k][i]<<"\t"<<solY[k][i]<<"\t"<<cos(solTheta[k][i])<<"\t"<<sin(solTheta[k][i])<<endl;
+        //dump_pos<<ctr<<"\t"<<i<<"\t"<<solX[k][i]<<"\t"<<solY[k][i]<<"\t"<<rhsX[i]<<"\t"<<rhsY[i]<<endl;
 			}
     }
-    order[k] = sqrt(pow(avgvel[0],2)+pow(avgvel[1],2))/N_particles;
+    //order[k] = sqrt(pow(avgvel[0],2)+pow(avgvel[1],2))/N_particles;
 
   }
 	dump_pos.close();
 	cout<<"\n Done"<<endl;
 
+  /*
   ofstream dump_data;
-  dump_data.open("../data/Szabo/order_dump.txt");
+  dump_data.open("../data/zebra/order_dump.txt");
   for (int i=0;i<N_steps;i++){
     dump_data<<(i+1)<<"\t"<<order[i]<<"\n";
   }
   dump_data.close();
+  */
   return 0;
 }

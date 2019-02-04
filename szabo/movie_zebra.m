@@ -1,12 +1,15 @@
 
-
-fid = fopen('movie_dump.txt'); %!!!!!!!!change the file name appropriately!!!!!!
+fid = fopen('../data/zebra/movie_dump.txt'); %!!!!!!!!change the file name appropriately!!!!!!
 
 [data] = textscan(fid,'%f %f %f %f %f %f');
 
 fclose(fid);
 
- 
+gid = fopen('../data/zebra/L_val.txt');
+
+L = fscanf(gid,'%f');
+
+fclose(gid);
 
 %Initializing data
 
@@ -84,10 +87,8 @@ for j = tmin:1:tmax
 
 %for j = 1:1:tmax-1
 
-    
-
+        
     n=n+1;
-
     
 
     plot(xmat(j,:,1),xmat(j,:,2),'ob','LineWidth',1,'MarkerSize',6,'MarkerFaceColor','b');
@@ -108,9 +109,9 @@ for j = tmin:1:tmax
 
     axis equal
 
-    xlim([0 20]);
+    xlim([0 L]);
 
-    ylim([0 20]);
+    ylim([0 L]);
 
     set(gca,'XTick',[])
 
